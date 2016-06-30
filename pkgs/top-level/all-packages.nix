@@ -2255,6 +2255,8 @@ in
 
   npm2nix = nodePackages.npm2nix;
 
+  lazy = callPackage ../development/tools/build-managers/lazy { };
+
   ldapvi = callPackage ../tools/misc/ldapvi { };
 
   ldns = callPackage ../development/libraries/ldns { };
@@ -2440,6 +2442,8 @@ in
   mfoc = callPackage ../tools/security/mfoc { };
 
   mgba = qt5.callPackage ../misc/emulators/mgba { };
+
+  midipix-internal = import ../data/misc/midipix-internal;
 
   mimeo = callPackage ../tools/misc/mimeo { };
 

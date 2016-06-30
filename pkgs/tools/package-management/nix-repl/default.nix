@@ -18,6 +18,7 @@ stdenv.mkDerivation {
 
   # FIXME: unfortunate cut&paste.
   installPhase = ''
+    echo hi2
     mkdir -p $out/bin
     $CXX -O3 -Wall -std=c++0x \
       -o $out/bin/nix-repl nix-repl.cc \
