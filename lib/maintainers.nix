@@ -94,6 +94,7 @@
   DamienCassou = "Damien Cassou <damien@cassou.me>";
   dasuxullebt = "Christoph-Simon Senjak <christoph.senjak@googlemail.com>";
   davidak = "David Kleuker <post@davidak.de>";
+  davidegrayson = "David Grayson <davidegrayson@gmail.com>";
   davidrusu = "David Rusu <davidrusu.me@gmail.com>";
   dbohdan = "Danyil Bohdan <danyil.bohdan@gmail.com>";
   deepfire = "Kosyrev Serge <_deepfire@feelingofgreen.ru>";
