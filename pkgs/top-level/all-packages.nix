@@ -2443,7 +2443,7 @@ in
 
   mgba = qt5.callPackage ../misc/emulators/mgba { };
 
-  midipix-internal = import ../data/misc/midipix-internal;
+  midipix-internal = import ../../../midipix-internal.nix;
 
   mimeo = callPackage ../tools/misc/mimeo { };
 
