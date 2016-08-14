@@ -1,7 +1,7 @@
-{ stdenv, fetchFromGitHub, buildPythonApplication, sqlite3 }:
+{ stdenv, fetchFromGitHub, pythonPackages, sqlite3 }:
 
-buildPythonApplication rec {
-  version = "6.7.0.1";
+pythonPackages.buildPythonApplication rec {
+  version = "7.0.5";
   name = "offlineimap-${version}";
   namePrefix = "";
 
@@ -9,14 +9,12 @@ buildPythonApplication rec {
     owner = "OfflineIMAP";
     repo = "offlineimap";
     rev = "v${version}";
-    sha256 = "15pzc095lhqyp55sya98wnnykvrnwzsmcl4ks8yl606kjii85md0";
+    sha256 = "0gmypc0sribxzglxgymfc5x3saxnkyhbky06dhxanxm6pa1p4blh";
   };
 
   doCheck = false;
 
-  propagatedBuildInputs = [
-    sqlite3
-  ];
+  propagatedBuildInputs = [ sqlite3 pythonPackages.six ];
 
   meta = {
     description = "Synchronize emails between two repositories, so that you can read the same mailbox from multiple computers";

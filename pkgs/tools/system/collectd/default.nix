@@ -29,21 +29,22 @@
 , udev ? null
 , varnish ? null
 , yajl ? null
+, net_snmp ? null
 }:
 stdenv.mkDerivation rec {
-  version = "5.5.1";
+  version = "5.5.2";
   name = "collectd-${version}";
 
   src = fetchurl {
     url = "http://collectd.org/files/${name}.tar.bz2";
-    sha256 = "0gxwq3jl20wgvb7qawivshpkm4i3kvghpnfcn5yrlhphw4kdbigr";
+    sha256 = "03w2pawbshl2wrl4cmyw8alsi0pvamb6ibxni96mjzhqc903lzq1";
   };
 
   buildInputs = [
     pkgconfig curl iptables libatasmart libcredis libdbi libgcrypt libmemcached
     cyrus_sasl libmodbus libnotify gdk_pixbuf liboping libpcap libsigrok libvirt
     lm_sensors libxml2 lvm2 libmysql postgresql protobufc rabbitmq-c rrdtool
-    varnish yajl jdk libtool python udev
+    varnish yajl jdk libtool python udev net_snmp
   ];
 
   # for some reason libsigrok isn't auto-detected

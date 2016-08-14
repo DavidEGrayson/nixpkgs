@@ -2,31 +2,36 @@
   targets ? [], targetToolchains ? [], targetPatches ? [] }:
 
 let
-  rustPlatform = recurseIntoAttrs (makeRustPlatform (callPackage ./bootstrap.nix {}) rustPlatform);
-  rustSnapshotPlatform = recurseIntoAttrs (makeRustPlatform (callPackage ./snapshot.nix {}) rustPlatform);
+  rustPlatform = recurseIntoAttrs (makeRustPlatform (callPackage ./bootstrap.nix {}));
 in
 
 rec {
   rustc = callPackage ./rustc.nix {
-    shortVersion = "1.9.0";
+    shortVersion = "1.10.0";
     isRelease = true;
     forceBundledLLVM = false;
     configureFlags = [ "--release-channel=stable" ];
-    srcRev = "e4e8b666850a763fdf1c3c2c142856ab51e32779";
-    srcSha = "1pz4qx70mqv78fxm4w1mq7csk5pssq4qmr2vwwb5v8hyx03caff8";
-    patches = [ ./patches/remove-uneeded-git.patch ]
-      ++ stdenv.lib.optional stdenv.needsPax ./patches/grsec.patch;
+    srcRev = "cfcb716cf0961a7e3a4eceac828d94805cf8140b";
+    srcSha = "15i81ybh32xymmkyz3bkb5bdgi9hx8nb0sh00ac6qba6w8ljpii9";
+    patches = [
+      ./patches/disable-lockfile-check.patch
+    ] ++ stdenv.lib.optional stdenv.needsPax ./patches/grsec.patch;
     inherit targets;
     inherit targetPatches;
     inherit targetToolchains;
-    rustPlatform = rustSnapshotPlatform;
+    inherit rustPlatform;
   };
 
   cargo = callPackage ./cargo.nix rec {
-    version = "0.10.0";
-    srcRev = "refs/tags/${version}";
-    srcSha = "06scvx5qh60mgvlpvri9ig4np2fsnicsfd452fi9w983dkxnz4l2";
-    depsSha256 = "0js4697n7v93wnqnpvamhp446w58llj66za5hkd6wannmc0gsy3b";
+    # TODO: We're temporarily tracking master here as Darwin needs the
+    # `http.cainfo` option from .cargo/config which isn't released
+    # yet.
+
+    version = "master-2016-07-25";
+    srcRev = "f09ef68cc47956ccc5f99212bdcdd15298c400a0";
+    srcSha = "1r6q9jd0fl6mzhwkvrrcv358q2784hg51dfpy28xgh4n61m7c155";
+    depsSha256 = "1p1ygabg9k9b0azm0mrx8asjzdi35c5zw53iysba198lli6bhdl4";
+
     inherit rustc; # the rustc that will be wrapped by cargo
     inherit rustPlatform; # used to build cargo
   };

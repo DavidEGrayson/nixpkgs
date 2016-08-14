@@ -4,11 +4,11 @@ assert enableCapabilities -> stdenv.isLinux;
 
 stdenv.mkDerivation rec {
   name = "libgcrypt-${version}";
-  version = "1.7.0";
+  version = "1.7.2";
 
   src = fetchurl {
     url = "mirror://gnupg/libgcrypt/${name}.tar.bz2";
-    sha256 = "14pspxwrqcgfklw3dgmywbxqwdzcym7fznfrqh9rk4vl8jkpxrmh";
+    sha256 = "17v8nvvxagcwxz46apzz575l8682kfd78pf00i2kbavfdn8dyd9x";
   };
 
   outputs = [ "dev" "out" "info" ];
@@ -35,12 +35,12 @@ stdenv.mkDerivation rec {
 
   doCheck = true;
 
-  meta = {
+  meta = with stdenv.lib; {
     homepage = https://www.gnu.org/software/libgcrypt/;
     description = "General-pupose cryptographic library";
-    license = lib.licenses.lgpl2Plus;
-    platforms = lib.platforms.all;
-    maintainers = [ lib.maintainers.wkennington ];
+    license = licenses.lgpl2Plus;
+    platforms = platforms.all;
+    maintainers = [ maintainers.wkennington maintainers.vrthra ];
     repositories.git = git://git.gnupg.org/libgcrypt.git;
   };
 }

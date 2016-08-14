@@ -21,8 +21,9 @@ let
     name = "nixos-install";
     src = ./nixos-install.sh;
 
-    inherit (pkgs) perl pathsFromGraph;
+    inherit (pkgs) perl pathsFromGraph rsync;
     nix = config.nix.package.out;
+    cacert = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
 
     nixClosure = pkgs.runCommand "closure"
       { exportReferencesGraph = ["refs" config.nix.package.out]; }

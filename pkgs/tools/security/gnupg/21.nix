@@ -13,11 +13,13 @@ with stdenv.lib;
 assert x11Support -> pinentry != null;
 
 stdenv.mkDerivation rec {
-  name = "gnupg-2.1.12";
+  name = "gnupg-${version}";
+
+  version = "2.1.14";
 
   src = fetchurl {
     url = "mirror://gnupg/gnupg/${name}.tar.bz2";
-    sha256 = "01n5py45x0r97l4dzmd803jpbpbcxr1591k3k4s8m9804jfr4d5c";
+    sha256 = "0hmsiscpdpdqd8kcjpzkz2gzcc3cnrvswk9p1jzi4sivd7lxwl4l";
   };
 
   buildInputs = [
@@ -37,7 +39,7 @@ stdenv.mkDerivation rec {
     homepage = http://gnupg.org;
     description = "A complete and free implementation of the OpenPGP standard";
     license = licenses.gpl3Plus;
-    maintainers = with maintainers; [ wkennington peti fpletz ];
+    maintainers = with maintainers; [ wkennington peti fpletz vrthra ];
     platforms = platforms.all;
   };
 }

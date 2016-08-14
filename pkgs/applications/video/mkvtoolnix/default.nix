@@ -1,4 +1,4 @@
-{ stdenv, fetchgit, pkgconfig, autoconf, automake
+{ stdenv, fetchFromGitHub, pkgconfig, autoconf, automake
 , ruby, file, xdg_utils, gettext, expat, qt5, boost
 , libebml, zlib, libmatroska, libogg, libvorbis, flac
 , withGUI ? true
@@ -10,18 +10,19 @@ with stdenv.lib;
 
 stdenv.mkDerivation rec {
   name = "mkvtoolnix-${version}";
-  version = "8.9.0";
+  version = "9.3.1";
 
-  src = fetchgit {
-    url = "https://github.com/mbunkus/mkvtoolnix.git";
-    rev = "54e6b52b3dde07f89da4542997ef059e18802128";
-    sha256 = "1gipydk1xisqy110rr38dgjzpxl8zxbm12kf7b2f4xh4iw17j0k2";
+  src = fetchFromGitHub {
+    owner = "mbunkus";
+    repo = "mkvtoolnix";
+    rev = "release-${version}";
+    sha256 = "1vipznja07nr7gmzdbv93dv2ggmw4x1bh6xxnn13k3fk6ysqh163";
   };
 
-  nativeBuildInputs = [ gettext ruby ];
+  nativeBuildInputs = [ pkgconfig autoconf automake gettext ruby ];
 
   buildInputs = [
-    pkgconfig autoconf automake expat
+    expat
     file xdg_utils boost libebml zlib
     libmatroska libogg libvorbis flac
     (optional withGUI qt5.qtbase)

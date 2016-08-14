@@ -1196,10 +1196,24 @@ echo @foo@
     <term><function>stripHash</function>
     <replaceable>path</replaceable></term>
     <listitem><para>Strips the directory and hash part of a store
-    path, and prints (on standard output) only the name part.  For
-    instance, <literal>stripHash
-    /nix/store/68afga4khv0w...-coreutils-6.12</literal> print
-    <literal>coreutils-6.12</literal>.</para></listitem>
+    path, storing the name part in the environment variable
+    <literal>strippedName</literal>. For example:
+    
+<programlisting>
+stripHash "/nix/store/9s9r019176g7cvn2nvcw41gsp862y6b4-coreutils-8.24"
+# prints coreutils-8.24
+echo $strippedName
+</programlisting>
+
+    If you wish to store the result in another variable, then the
+    following idiom may be useful:
+    
+<programlisting>
+name="/nix/store/9s9r019176g7cvn2nvcw41gsp862y6b4-coreutils-8.24"
+someVar=$(stripHash $name; echo $strippedName)
+</programlisting>
+
+    </para></listitem>
   </varlistentry>
 
   
@@ -1303,6 +1317,25 @@ echo @foo@
     GStreamer plugins subdirectory of
     each build input to the <envar>GST_PLUGIN_SYSTEM_PATH_1_0</envar> or
     <envar>GST_PLUGIN_SYSTEM_PATH</envar> environment variable.</para></listitem>
+  </varlistentry>
+
+  <varlistentry>
+    <term>paxctl</term>
+    <listitem><para>Defines the <varname>paxmark</varname> helper for
+    setting per-executable PaX flags on Linux (where it is available by
+    default; on all other platforms, <varname>paxmark</varname> is a no-op).
+    For example, to disable secure memory protections on the executable
+    <replaceable>foo</replaceable>:
+    <programlisting>
+      postFixup = ''
+        paxmark m $out/bin/<replaceable>foo</replaceable>
+      '';
+    </programlisting>
+    The <literal>m</literal> flag is the most common flag and is typically
+    required for applications that employ JIT compilation or otherwise need to
+    execute code generated at run-time.  Disabling PaX protections should be
+    considered a last resort: if possible, problematic features should be
+    disabled or patched to work with PaX.</para></listitem>
   </varlistentry>
 
 </variablelist>

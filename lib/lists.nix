@@ -89,7 +89,7 @@ rec {
   */
   flatten = x:
     if isList x
-    then foldl' (x: y: x ++ (flatten y)) [] x
+    then concatMap (y: flatten y) x
     else [x];
 
   /* Remove elements equal to 'e' from a list.  Useful for buildInputs.
@@ -373,9 +373,5 @@ rec {
        => [ 1 4 5 ]
   */
   subtractLists = e: filter (x: !(elem x e));
-
-  /*** deprecated stuff ***/
-
-  deepSeqList = throw "removed 2016-02-29 because unused and broken";
 
 }

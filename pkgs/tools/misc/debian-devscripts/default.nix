@@ -5,12 +5,12 @@
 }:
 
 stdenv.mkDerivation rec {
-  version = "2.16.5";
+  version = "2.16.6";
   name = "debian-devscripts-${version}";
 
   src = fetchurl {
     url = "mirror://debian/pool/main/d/devscripts/devscripts_${version}.tar.xz";
-    sha256 = "0jyg7abfar4rc3zmdzz4k8kk081ll93v508kdnxg30snavri7f02";
+    sha256 = "0lkhilwb1gsnk8q14wkrl78s0w3l8aghsaz00vprmkmcc3j1x14h";
   };
 
   buildInputs = [ perl CryptSSLeay LWP unzip xz dpkg TimeDate DBFile 
@@ -59,5 +59,6 @@ stdenv.mkDerivation rec {
     description = ''Debian package maintenance scripts'';
     license = licenses.free; # Mix of public domain, Artistic+GPL, GPL1+, GPL2+, GPL3+, and GPL2-only... TODO
     maintainers = with maintainers; [raskin];
+    platforms = with platforms; linux;
   };
 }
