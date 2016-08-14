@@ -2,7 +2,7 @@
 
 stdenv.mkDerivation rec {
   name = "perk-${version}";
-  version = "2016-06-25";
+  version = "2016-08-14";
 
   meta = {
     description = "PE Resource Kit";
@@ -14,15 +14,9 @@ stdenv.mkDerivation rec {
 
   src = fetchgit {
     url = "git://midipix.org/perk";
-    rev = "6d7c60d7a9a1592d5cbe6bfd7817fdd3a302142c";
-    sha256 = "05mj7s6qkbak1srfcji27x2ayvklml4sd50ya80rmk3hwws0pgr7";
+    rev = "85d6bd6b49b6481f44cdbf568f398df15238468f";
+    sha256 = "0s7q895bd19mb4gdpv7yj1pf9zd3xn7ii0qilz9khigb2bgaymgn";
   };
-
-  # perk uses _BSD_SOURCE by default, which makes glibc emit a warning:
-  # "_BSD_SOURCE and _SVID_SOURCE are deprecated, use _DEFAULT_SOURCE".
-  # Adding _DEFAULT_SOURCE is enough to remove the warning even though
-  # perk keeps using _BSD_SOURCE anyway.
-  CFLAGS = "-D_DEFAULT_SOURCE";
 
   postInstall = ''cp $src/COPYING.PERK $out'';
 }
