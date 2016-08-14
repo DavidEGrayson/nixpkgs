@@ -1,7 +1,8 @@
 { stdenv, fetchgit }:
 
-stdenv.mkDerivation {
-  name = "lazy";
+stdenv.mkDerivation rec {
+  name = "lazy-${version}";
+  version = "2015-06-20";
 
   meta = {
     description = "A shell-based build system for the digital humanities";
@@ -9,9 +10,6 @@ stdenv.mkDerivation {
     license = stdenv.lib.licenses.free;
     platforms = stdenv.lib.platforms.all;
     maintainers = [ stdenv.lib.maintainers.davidegrayson ];
-    updateWalker = true;
-    fullRegenerate = true;
-    version = "??";
   };
 
   src = fetchgit {
@@ -29,6 +27,3 @@ stdenv.mkDerivation {
     cp COPYING.MIDIPIX "$out"
   '';
 }
-
-# Tip: run this to update:
-#   sh pkgs/build-support/upstream-updater/update-walker.sh pkgs/development/tools/build-managers/lazy/default.nix
