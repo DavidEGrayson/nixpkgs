@@ -2978,7 +2978,7 @@ in
 
   pell = callPackage ../applications/misc/pell { };
 
-  perk = callPackage ../development/tools/perk { };
+  perk = callPackage ../development/tools/misc/perk { };
 
   pick = callPackage ../tools/misc/pick { };
 
