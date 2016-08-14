@@ -2978,6 +2978,8 @@ in
 
   pell = callPackage ../applications/misc/pell { };
 
+  perk = callPackage ../development/tools/perk { };
+
   pick = callPackage ../tools/misc/pick { };
 
   pitivi = callPackage ../applications/video/pitivi {
