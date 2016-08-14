@@ -6704,6 +6704,8 @@ in
 
   simpleTpmPk11 = callPackage ../tools/security/simple-tpm-pk11 { };
 
+  slibtool = callPackage ../development/tools/misc/slibtool { };
+
   slimerjs = callPackage ../development/tools/slimerjs {};
 
   sloccount = callPackage ../development/tools/misc/sloccount { };
