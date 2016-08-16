@@ -7393,6 +7393,7 @@ in
   # We can choose:
   libcCrossChooser = name: if name == "glibc" then glibcCross
     else if name == "uclibc" then uclibcCross
+    else if name == "musl-midipix" then muslMidipixCross
     else if name == "msvcrt" then windows.mingw_w64
     else if name == "libSystem" then darwin.xcode
     else throw "Unknown libc";
@@ -11541,6 +11542,11 @@ in
   multipath-tools = callPackage ../os-specific/linux/multipath-tools { };
 
   musl = callPackage ../os-specific/linux/musl { };
+
+  muslMidipixCross = lowPrio (callPackage ../os-specific/midipix/musl {
+    gccCross = gccCrossStageStatic;
+    cross = assert crossSystem != null; crossSystem;
+  });
 
   nettools = callPackage ../os-specific/linux/net-tools { };
 
