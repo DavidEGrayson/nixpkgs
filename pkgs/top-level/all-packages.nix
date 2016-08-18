@@ -63,7 +63,12 @@ in
   forceNativeDrv = drv : if crossSystem == null then drv else
     (drv // { crossDrv = drv.nativeDrv; });
 
-  stdenvCross = lowPrio (makeStdenvCross defaultStdenv crossSystem binutilsCross gccCrossStageFinal);
+  stdenvCross = lowPrio (
+    if crossSystem.config == "x86_64-nt64-midipix" then
+      allStdenvs.stdenvMidipixCross
+    else
+      makeStdenvCross defaultStdenv crossSystem binutilsCross gccCrossStageFinal
+    );
 
   # A stdenv capable of building 32-bit binaries.  On x86_64-linux,
   # it uses GCC compiled with multilib support; on i686-linux, it's
@@ -11543,10 +11548,10 @@ in
 
   musl = callPackage ../os-specific/linux/musl { };
 
-  muslMidipixCross = lowPrio (callPackage ../os-specific/midipix/musl {
-    gccCross = gccCrossStageStatic;
-    cross = assert crossSystem != null; crossSystem;
-  });
+  #muslMidipixCross = lowPrio (callPackage ../os-specific/midipix/musl {
+  #  gccCross = gccCrossStageStatic;
+  #  cross = assert crossSystem != null; crossSystem;
+  #});
 
   nettools = callPackage ../os-specific/linux/net-tools { };
 

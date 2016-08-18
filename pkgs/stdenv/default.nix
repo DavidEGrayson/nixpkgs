@@ -40,6 +40,10 @@ rec {
 
   stdenvDarwin = (import ./darwin { inherit system allPackages platform config;}).stdenvDarwin;
 
+  _midipix = (import ./midipix { inherit system allPackages platform config; });
+  stdenvMidipix = _midipix.stdenv;
+  stdenvMidipixCross = _midipix.stdenvCross;
+
   # Select the appropriate stdenv for the platform `system'.
   stdenv =
     if system == "i686-linux" then stdenvLinux else
@@ -53,6 +57,7 @@ rec {
     if system == "x86_64-solaris" then stdenvNix else
     if system == "i686-cygwin" then stdenvNative else
     if system == "x86_64-cygwin" then stdenvNative else
+    if system == "x86_64-nt64-midipix" then stdenvMidipix else
     if system == "x86_64-freebsd" then stdenvFreeBSD else
     stdenvNative;
 }
