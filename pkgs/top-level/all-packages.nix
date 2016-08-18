@@ -2572,8 +2572,6 @@ in
 
   mgba = qt5.callPackage ../misc/emulators/mgba { };
 
-  midipix-internal = import ../../../midipix-internal.nix;
-
   mimeo = callPackage ../tools/misc/mimeo { };
 
   mimetic = callPackage ../development/libraries/mimetic { };
@@ -6179,7 +6177,7 @@ in
   binutilsCross = assert crossSystem != null; lowPrio (forceNativeDrv (
     if crossSystem.libc == "libSystem" then darwin.cctools_cross
     else if crossSystem.config == "x86_64-nt64-midipix" then
-      import ../stdenv/midipix/binutils.nix {
+      import ../stdenv/midipix/binutils {
         inherit stdenv crossSystem zlib bison fetchurl;
       }
     else binutils.override {
@@ -7394,7 +7392,6 @@ in
   # We can choose:
   libcCrossChooser = name: if name == "glibc" then glibcCross
     else if name == "uclibc" then uclibcCross
-    else if name == "musl-midipix" then muslMidipixCross
     else if name == "msvcrt" then windows.mingw_w64
     else if name == "libSystem" then darwin.xcode
     else throw "Unknown libc";
@@ -11515,11 +11512,6 @@ in
   multipath-tools = callPackage ../os-specific/linux/multipath-tools { };
 
   musl = callPackage ../os-specific/linux/musl { };
-
-  #muslMidipixCross = lowPrio (callPackage ../os-specific/midipix/musl {
-  #  gccCross = gccCrossStageStatic;
-  #  cross = assert crossSystem != null; crossSystem;
-  #});
 
   nettools = callPackage ../os-specific/linux/net-tools { };
 
