@@ -65,7 +65,9 @@ in
 
   stdenvCross = lowPrio (
     if crossSystem.config == "x86_64-nt64-midipix" then
-      allStdenvs.stdenvMidipixCross
+      import ../stdenv/midipix/cross.nix {
+        inherit defaultStdenv crossSystem zlib fetchurl;
+      }
     else
       makeStdenvCross defaultStdenv crossSystem binutilsCross gccCrossStageFinal
     );
