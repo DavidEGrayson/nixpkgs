@@ -20,22 +20,29 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "ftp://sourceware.org/pub/binutils/snapshots/${basename}.tar.bz2";
-    sha256 = "1n4zjibdvqwz63kkzkjdqdp1nh993pn0lml6yyr19yx4gb44dhrr";
+    sha256 = "250d3b2925c6b211fb16173b0b25bc091c58829fbcad3eb849645e0af52cf7fa";
   };
 
   patches = [
     # Turn on --enable-new-dtags by default to make the linker set
     # RUNPATH instead of RPATH on binaries.  This is important because
     # RUNPATH can be overriden using LD_LIBRARY_PATH at runtime.
+    # This patch was copied from pkgs/development/tools/misc/binutils.
     ./new-dtags.patch
 
     # Since binutils 2.22, DT_NEEDED flags aren't copied for dynamic outputs.
     # That requires upstream changes for things to work. So we can patch it to
     # get the old behaviour by now.
+    # This patch was copied from pkgs/development/tools/misc/binutils.
     ./dtneeded.patch
 
     # Make binutils output deterministic by default.
+    # This patch was copied from pkgs/development/tools/misc/binutils.
     ./deterministic.patch
+
+    # This patch was downloaded from
+    # http://git.midipix.org/cgit.cgi/ports/portage/plain/binutils-2.24.51.midipix.patch
+    ./binutils-2.24.51.midipix.patch
   ];
 
   outputs = (optional (cross == null) "dev") ++ [ "out" "info" ];
@@ -59,10 +66,8 @@ stdenv.mkDerivation rec {
   '';
 
   # As binutils takes part in the stdenv building, we don't want references
-  # to the bootstrap-tools libgcc (as uses to happen on arm/mips)
-  NIX_CFLAGS_COMPILE = if stdenv.isDarwin
-    then "-Wno-string-plus-int -Wno-deprecated-declarations"
-    else "-static-libgcc";
+  # to the bootstrap-tools libgcc (as used to happen on arm/mips)
+  NIX_CFLAGS_COMPILE = "-static-libgcc";
 
   configureFlags =
     [ "--enable-shared" "--enable-deterministic-archives" "--disable-werror" ]
