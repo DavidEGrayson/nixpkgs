@@ -63,14 +63,7 @@ in
   forceNativeDrv = drv : if crossSystem == null then drv else
     (drv // { crossDrv = drv.nativeDrv; });
 
-  stdenvCross = lowPrio (
-    if crossSystem.config == "x86_64-nt64-midipix" then
-      import ../stdenv/midipix/cross.nix {
-        inherit defaultStdenv crossSystem zlib fetchurl;
-      }
-    else
-      makeStdenvCross defaultStdenv crossSystem binutilsCross gccCrossStageFinal
-    );
+  stdenvCross = lowPrio (makeStdenvCross defaultStdenv crossSystem binutilsCross gccCrossStageFinal);
 
   # A stdenv capable of building 32-bit binaries.  On x86_64-linux,
   # it uses GCC compiled with multilib support; on i686-linux, it's
@@ -6185,6 +6178,10 @@ in
 
   binutilsCross = assert crossSystem != null; lowPrio (forceNativeDrv (
     if crossSystem.libc == "libSystem" then darwin.cctools_cross
+    else if crossSystem.config == "x86_64-nt64-midipix" then
+      import ../stdenv/midipix/binutils.nix {
+        inherit stdenv crossSystem zlib bison fetchurl;
+      }
     else binutils.override {
       noSysDirs = true;
       cross = crossSystem;

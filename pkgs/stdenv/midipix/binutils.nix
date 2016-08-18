@@ -6,16 +6,17 @@
 # too much work to keep our Midipix-specific patches up-to-date with
 # the latest version of binutils.
 
-{ stdenv, fetchurl, zlib, crossSystem ? null }:
+{ stdenv, fetchurl, zlib, bison, crossSystem ? null }:
 
 let basename = "binutils-2.24.51";
     noSysDirs = true;
+    cross = crossSystem;
 in
 
 with { inherit (stdenv.lib) optional optionals optionalString; };
 
 stdenv.mkDerivation rec {
-  name = basename + optionalString (crossSystem != null) "-${crossSystem.config}";
+  name = basename + optionalString (cross != null) "-${cross.config}";
 
   src = fetchurl {
     url = "ftp://sourceware.org/pub/binutils/snapshots/${basename}.tar.bz2";
@@ -42,7 +43,7 @@ stdenv.mkDerivation rec {
     ./pt-pax-flags.patch
   ];
 
-  outputs = (optional (crossSystem == null) "dev") ++ [ "out" "info" ];
+  outputs = (optional (cross == null) "dev") ++ [ "out" "info" ];
 
   nativeBuildInputs = [ bison ];
   buildInputs = [ zlib ];
@@ -57,7 +58,7 @@ stdenv.mkDerivation rec {
 
     # Use symlinks instead of hard links to save space ("strip" in the
     # fixup phase strips each hard link separately).
-    for i in binutils/Makefile.in gas/Makefile.in ld/Makefile.in gold/Makefile.in; do
+    for i in binutils/Makefile.in gas/Makefile.in ld/Makefile.in; do
         sed -i "$i" -e 's|ln |ln -s |'
     done
   '';
@@ -70,10 +71,7 @@ stdenv.mkDerivation rec {
 
   configureFlags =
     [ "--enable-shared" "--enable-deterministic-archives" "--disable-werror" ]
-    ++ optional (stdenv.system == "mips64el-linux") "--enable-fix-loongson2f-nop"
-    ++ optional (cross != null) "--target=${cross.config}"
-    ++ optionals gold [ "--enable-gold" "--enable-plugins" ]
-    ++ optional (stdenv.system == "i686-linux") "--enable-targets=x86_64-linux-gnu";
+    ++ optional (cross != null) "--target=${cross.config}";
 
   enableParallelBuilding = true;
 
