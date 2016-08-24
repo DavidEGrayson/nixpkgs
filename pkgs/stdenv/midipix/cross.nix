@@ -7,10 +7,16 @@
 
 assert crossSystem.config == "x86_64-nt64-midipix";
 
-{
+rec {
+
   binutils = import ./binutils.nix {
     stdenv = defaultStdenv;
     inherit crossSystem zlib fetchurl;
+  };
+
+  gccStage1 = import ./gcc.nix {
+    stdenv = defaultStdenv;
+    inherit crossSystem zlib fetchurl binutils;
   };
   mkDerivation = "wtf";
 }

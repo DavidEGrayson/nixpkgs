@@ -1,6 +1,11 @@
 # This function produces a derivation for a binutils package targeting
 # the midipix system.
 #
+# This function was originally made by copying
+# pkgs/development/tools/misc/binutils/default.nix and then making a
+# few changes to make it support midipix.  Some features that
+# obviously were not needed for midipix were removed.
+#
 # Once the upstream binutils adds support for midipix, we can delete
 # this file and just use the other binutils.nix.  Until then, it is
 # too much work to keep our Midipix-specific patches up-to-date with

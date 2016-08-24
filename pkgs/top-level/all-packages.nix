@@ -4438,6 +4438,9 @@ in
       if stdenv.cross.libc == "msvcrt" then windows.mingw_w64_headers
       else if stdenv.cross.libc == "libSystem" then darwin.xcode
       else null;
+    gcc =
+      if crossSystem.config == "x86_64-nt64-midipix" then gcc46
+      else gcc;
     in wrapGCCCross {
       gcc = forceNativeDrv (gcc.cc.override {
         cross = crossSystem;
