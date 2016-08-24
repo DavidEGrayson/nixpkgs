@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, noSysDirs
+{ stdenv, fetchurl, fetchgit, noSysDirs
 , langC ? true, langCC ? true, langFortran ? false
 , langJava ? false
 , langAda ? false
@@ -105,6 +105,7 @@ let version = "4.6.4";
 
     /* Cross-gcc settings */
     crossMingw = (cross != null && cross.libc == "msvcrt");
+    crossMidipix = (cross != null && cross.config == "x86_64-nt64-midipix");
     crossConfigureFlags = let
         gccArch = stdenv.lib.attrByPath [ "gcc" "arch" ] null cross;
         gccCpu = stdenv.lib.attrByPath [ "gcc" "cpu" ] null cross;
@@ -182,10 +183,17 @@ stdenv.mkDerivation ({
 
   builder = ./builder.sh;
 
-  srcs = (import ./sources.nix) {
-    inherit fetchurl optional version;
-    inherit langC langCC langFortran langJava langAda langGo;
-  };
+  srcs = if crossMidipix then
+    fetchgit {
+      url = "git://midipix.org/cbb/cbb-gcc-4.6.4";
+      rev = "071e27b36f351ea3659fb569399a8dbdaabe56aa";
+      sha256 = "1b67m82bvmp93ddmg4p0ipahajcw83n2h31n1z1fm0xhryv0c1kc";
+    }
+  else
+    (import ./sources.nix) {
+      inherit fetchurl optional version;
+      inherit langC langCC langFortran langJava langAda langGo;
+    };
 
   outputs = [ "out" "lib" ];
 
