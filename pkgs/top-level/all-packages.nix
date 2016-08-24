@@ -162,6 +162,8 @@ in
 
   fetchdarcs = callPackage ../build-support/fetchdarcs { };
 
+  fetchfossil = callPackage ../build-support/fetchfossil { };
+
   fetchgit = callPackage ../build-support/fetchgit {
     git = gitMinimal;
   };
@@ -730,6 +732,8 @@ in
 
   coturn = callPackage ../servers/coturn { };
 
+  crunch = callPackage ../tools/security/crunch { };
+
   daemontools = callPackage ../tools/admin/daemontools { };
 
   datamash = callPackage ../tools/misc/datamash { };
@@ -1161,7 +1165,7 @@ in
 
   biosdevname = callPackage ../tools/networking/biosdevname { };
 
-  checkbashism = callPackage ../development/tools/misc/checkbashisms { };
+  checkbashisms = callPackage ../development/tools/misc/checkbashisms { };
 
   clamav = callPackage ../tools/security/clamav { };
 
@@ -2933,7 +2937,7 @@ in
     owncloud82
     owncloud90;
 
-  owncloudclient = callPackage ../applications/networking/owncloud-client { };
+  owncloud-client = callPackage ../applications/networking/owncloud-client { };
 
   p2pvc = callPackage ../applications/video/p2pvc {};
 
@@ -3457,9 +3461,7 @@ in
 
   sharutils = callPackage ../tools/archivers/sharutils { };
 
-  shotwell = callPackage ../applications/graphics/shotwell {
-    vala = vala_0_28;
-  };
+  shotwell = callPackage ../applications/graphics/shotwell { };
 
   shout = callPackage ../applications/networking/irc/shout { };
 
@@ -4020,6 +4022,8 @@ in
 
   ugarit-manifest-maker = callPackage ../tools/backup/ugarit-manifest-maker { };
 
+  unar = callPackage ../tools/archivers/unar { stdenv = clangStdenv; };
+
   unarj = callPackage ../tools/archivers/unarj { };
 
   unshield = callPackage ../tools/archivers/unshield { };
@@ -4043,7 +4047,6 @@ in
 
   valum = callPackage ../development/web/valum {
     inherit (gnome3) libgee;
-    vala = vala_0_28;
   };
 
   varnish = callPackage ../servers/varnish { };
@@ -4792,10 +4795,14 @@ in
   openjdk = if stdenv.isDarwin then self.openjdk7 else self.openjdk8;
 
   jdk7 = self.openjdk7 // { outputs = [ "out" ]; };
-  jre7 = lib.setName "openjre-${lib.getVersion pkgs.openjdk7.jre}" (self.openjdk7.jre // { outputs = [ "jre" ]; });
+  jre7 = lib.setName "openjre-${lib.getVersion pkgs.openjdk7.jre}"
+    (lib.addMetaAttrs { outputsToInstall = [ "jre" ]; }
+      (self.openjdk7.jre // { outputs = [ "jre" ]; }));
 
   jdk8 = self.openjdk8 // { outputs = [ "out" ]; };
-  jre8 = lib.setName "openjre-${lib.getVersion pkgs.openjdk8.jre}" (self.openjdk8.jre // { outputs = [ "jre" ]; });
+  jre8 = lib.setName "openjre-${lib.getVersion pkgs.openjdk8.jre}"
+    (lib.addMetaAttrs { outputsToInstall = [ "jre" ]; }
+      (self.openjdk8.jre // { outputs = [ "jre" ]; }));
 
   jdk = if stdenv.isDarwin then self.jdk7 else self.jdk8;
   jre = if stdenv.isDarwin then self.jre7 else self.jre8;
@@ -5397,6 +5404,8 @@ in
 
     stringext = callPackage ../development/ocaml-modules/stringext { };
 
+    topkg = callPackage ../development/ocaml-modules/topkg { };
+
     tsdl = callPackage ../development/ocaml-modules/tsdl { };
 
     twt = callPackage ../development/ocaml-modules/twt { };
@@ -5591,7 +5600,7 @@ in
 
   urweb = callPackage ../development/compilers/urweb { };
 
-  vala = callPackage ../development/compilers/vala/default.nix { };
+  vala_0_23 = callPackage ../development/compilers/vala/0.23.nix { };
 
   vala_0_26 = callPackage ../development/compilers/vala/0.26.nix { };
 
@@ -6454,8 +6463,9 @@ in
   gotty = callPackage ../servers/gotty { };
 
   gradleGen = callPackage ../development/tools/build-managers/gradle { };
-  gradle = self.gradleGen.gradleLatest;
-  gradle25 = self.gradleGen.gradle25;
+  gradle = self.gradleGen.gradle_latest;
+  gradle_2_14 = self.gradleGen.gradle_2_14;
+  gradle_2_5 = self.gradleGen.gradle_2_5;
 
   gperf = callPackage ../development/tools/misc/gperf { };
 
@@ -7089,6 +7099,8 @@ in
   cxxtools = callPackage ../development/libraries/cxxtools { };
 
   cwiid = callPackage ../development/libraries/cwiid { };
+
+  cxx-prettyprint = callPackage ../development/libraries/cxx-prettyprint { };
 
   cyrus_sasl = callPackage ../development/libraries/cyrus-sasl {
     kerberos = if stdenv.isFreeBSD then libheimdal else kerberos;
@@ -8900,7 +8912,8 @@ in
 
   oniguruma = callPackage ../development/libraries/oniguruma { };
 
-  openal = openalSoft;
+  openal = self.openalSoft;
+
   openalSoft = callPackage ../development/libraries/openal-soft {
     inherit (darwin.apple_sdk.frameworks) CoreServices AudioUnit AudioToolbox;
   };
@@ -9329,9 +9342,7 @@ in
     openglSupport = mesaSupported;
     alsaSupport = stdenv.isLinux;
     x11Support = !stdenv.isCygwin;
-    pulseaudioSupport = if (config ? pulseaudio)
-                        then config.pulseaudio
-                        else stdenv.isLinux;
+    pulseaudioSupport = config.pulseaudio or stdenv.isLinux;
     inherit (darwin.apple_sdk.frameworks) OpenGL CoreAudio CoreServices AudioUnit Kernel Cocoa;
   };
 
@@ -9355,7 +9366,8 @@ in
     openglSupport = mesaSupported;
     alsaSupport = stdenv.isLinux;
     x11Support = !stdenv.isCygwin;
-    pulseaudioSupport = config.pulseaudio or false; # better go through ALSA
+    udevSupport = stdenv.isLinux;
+    pulseaudioSupport = config.pulseaudio or stdenv.isLinux;
     inherit (darwin.apple_sdk.frameworks) AudioUnit Cocoa CoreAudio CoreServices ForceFeedback OpenGL;
   };
 
@@ -9562,11 +9574,17 @@ in
 
   tnt = callPackage ../development/libraries/tnt { };
 
+  tntnet = callPackage ../development/libraries/tntnet { };
+
+  tntdb = callPackage ../development/libraries/tntdb { };
+
   kyotocabinet = callPackage ../development/libraries/kyotocabinet { };
 
   tokyocabinet = callPackage ../development/libraries/tokyo-cabinet { };
 
   tokyotyrant = callPackage ../development/libraries/tokyo-tyrant { };
+
+  torch = callPackage ../development/libraries/torch {};
 
   tremor = callPackage ../development/libraries/tremor { };
 
@@ -9718,6 +9736,8 @@ in
   wildmidi = callPackage ../development/libraries/wildmidi { };
 
   wiredtiger = callPackage ../development/libraries/wiredtiger { };
+
+  wt = callPackage ../development/libraries/wt { };
 
   wvstreams = callPackage ../development/libraries/wvstreams { };
 
@@ -9984,6 +10004,8 @@ in
   buildGoPackage = buildGo16Package;
 
   go2nix = callPackage ../development/tools/go2nix { };
+
+  leaps = callPackage ../development/tools/leaps { };
 
   ### DEVELOPMENT / LISP MODULES
 
@@ -10798,7 +10820,7 @@ in
 
   checksec = callPackage ../os-specific/linux/checksec { };
 
-  cifs_utils = callPackage ../os-specific/linux/cifs-utils { };
+  cifs-utils = callPackage ../os-specific/linux/cifs-utils { };
 
   conky = callPackage ../os-specific/linux/conky ({
     lua = lua5_1; # conky can use 5.2, but toluapp can not
@@ -12282,6 +12304,8 @@ in
 
   antiword = callPackage ../applications/office/antiword {};
 
+  ao = callPackage ../applications/graphics/ao {};
+
   ardour = self.ardour4;
 
   ardour3 =  callPackage ../applications/audio/ardour/ardour3.nix {
@@ -13031,9 +13055,7 @@ in
 
   focuswriter = callPackage ../applications/editors/focuswriter { };
 
-  font-manager = callPackage ../applications/misc/font-manager {
-    vala = vala_0_32;
-  };
+  font-manager = callPackage ../applications/misc/font-manager { };
 
   foo-yc20 = callPackage ../applications/audio/foo-yc20 { };
 
@@ -13088,6 +13110,8 @@ in
   };
 
   gsimplecal = callPackage ../applications/misc/gsimplecal { };
+
+  gthumb = callPackage ../applications/graphics/gthumb { };
 
   gtimelog = pythonPackages.gtimelog;
 
@@ -13663,7 +13687,9 @@ in
     ffmpeg = ffmpeg_2;
   };
 
-  kiwix = callPackage ../applications/misc/kiwix { };
+  kiwix = callPackage ../applications/misc/kiwix {
+    stdenv = overrideCC stdenv gcc49;
+  };
 
   koji = callPackage ../tools/package-management/koji { };
 
@@ -14131,9 +14157,7 @@ in
 
   pdfdiff = callPackage ../applications/misc/pdfdiff { };
 
-  mupdf = callPackage ../applications/misc/mupdf {
-    openjpeg = openjpeg_2_0;
-  };
+  mupdf = callPackage ../applications/misc/mupdf { };
 
   diffpdf = callPackage ../applications/misc/diffpdf { };
 
@@ -14274,7 +14298,6 @@ in
   pdfgrep  = callPackage ../tools/typesetting/pdfgrep { };
 
   pdfpc = callPackage ../applications/misc/pdfpc {
-    vala = vala_0_26;
     inherit (gnome3) libgee;
     inherit (gst_all_1) gstreamer gst-plugins-base;
   };
@@ -14724,6 +14747,8 @@ in
     themes = [];  # extra themes, etc.
   };
 
+  skrooge2 = qt5.callPackage ../applications/office/skrooge/2.nix {};
+
   slim = callPackage ../applications/display-managers/slim {
     libpng = libpng12;
   };
@@ -15018,9 +15043,7 @@ in
 
   vanitygen = callPackage ../applications/misc/vanitygen { };
 
-  vanubi = callPackage ../applications/editors/vanubi {
-    vala = vala_0_26;
-  };
+  vanubi = callPackage ../applications/editors/vanubi { };
 
   vbindiff = callPackage ../applications/editors/vbindiff { };
 
@@ -15129,6 +15152,10 @@ in
   vlc = callPackage ../applications/video/vlc {
     ffmpeg = ffmpeg_2;
     libva = libva-full; # also wants libva-x11
+  };
+
+  vlc_npapi = callPackage ../applications/video/vlc/plugin.nix {
+    gtk = gtk2;
   };
 
   vlc_qt5 = qt5.vlc;
@@ -17508,6 +17535,8 @@ in
   winetricks = callPackage ../misc/emulators/wine/winetricks.nix {
     inherit (gnome2) zenity;
   };
+
+  with-shell = callPackage ../applications/misc/with-shell { };
 
   wmutils-core = callPackage ../tools/X11/wmutils-core { };
 

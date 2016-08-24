@@ -42,6 +42,7 @@ in modules // {
     { deps = pkgs.makeWrapper;
       substitutions.libPrefix = python.libPrefix;
       substitutions.executable = python.interpreter;
+      substitutions.python = python;
       substitutions.magicalSedExpression = let
         # Looks weird? Of course, it's between single quoted shell strings.
         # NOTE: Order DOES matter here, so single character quotes need to be
@@ -53,19 +54,31 @@ in modules // {
           isSingle = elem quote [ "\"" "'\"'\"'" ];
           endQuote = if isSingle then "[^\\\\]${quote}" else quote;
         in ''
-          /^ *[a-z]?${quote}/ {
+          /^[a-z]?${quote}/ {
             /${quote}${quote}|${quote}.*${endQuote}/{n;br}
             :${label}; n; /^${quote}/{n;br}; /${endQuote}/{n;br}; b${label}
           }
         '';
 
+        # This preamble does two things:
+        # * Sets argv[0] to the original application's name; otherwise it would be .foo-wrapped.
+        #   Python doesn't support `exec -a`.
+        # * Adds all required libraries to sys.path via `site.addsitedir`. It also handles *.pth files.
+        preamble = ''
+          import sys
+          import site
+          import functools
+          sys.argv[0] = '"'$(basename "$f")'"'
+          functools.reduce(lambda k, p: site.addsitedir(p, k), ['"$([ -n "$program_PYTHONPATH" ] && (echo "'$program_PYTHONPATH'" | sed "s|:|','|g") || true)"'], site._init_pathinfo())
+        '';
+
       in ''
         1 {
-          /^#!/!b; :r
-          /\\$/{N;br}
-          /__future__|^ *(#.*)?$/{n;br}
+          :r
+          /\\$|,$/{N;br}
+          /__future__|^ |^ *(#.*)?$/{n;br}
           ${concatImapStrings mkStringSkipper quoteVariants}
-          /^ *[^# ]/i import sys; sys.argv[0] = '"'$(basename "$f")'"'
+          /^[^# ]/i ${replaceStrings ["\n"] [";"] preamble}
         }
       '';
     }
@@ -3308,7 +3321,7 @@ in modules // {
     disabled = isPy3k;
 
     src = pkgs.fetchurl {
-      url = "http://downloads.sourceforge.net/project/cgkit/cgkit/cgkit-${version}/cgkit-${version}-py2k.tar.gz";
+      url = "mirror://sourceforge/project/cgkit/cgkit/cgkit-${version}/cgkit-${version}-py2k.tar.gz";
       sha256 = "0vvllc42mdyma3c7yqhahs4bfxymm2kvmc4va7dxqr5x0rzh6rd6";
     };
 
@@ -4943,6 +4956,8 @@ in modules // {
       url = "mirror://pypi/l/libtmux/${name}.tar.gz";
       sha256 = "0fwydaahgflz9w753v1cmkfzrlfq1vb8zp4i20m2d3lvkm4crv93";
     };
+
+    buildInputs = with self; [ pytest ];
 
     meta = with stdenv.lib; {
       description = "Scripting library for tmux";
@@ -8519,20 +8534,7 @@ in modules // {
     installPhase = ''
       mkdir -p $out/${python.sitePackages}
       cp -r scfbuild $out/${python.sitePackages}
-      # Workaround for #16133
-      mkdir -p $out/bin
-
-      cat >$out/bin/scfbuild <<EOF
-      #!/usr/bin/env python2
-
-      import sys
-      from scfbuild.main import main
-
-      if __name__ == '__main__':
-        sys.exit(main())
-      EOF
-
-      chmod +x $out/bin/scfbuild
+      cp -r bin $out
     '';
 
     meta = with stdenv.lib; {
@@ -17489,11 +17491,11 @@ in modules // {
   };
 
   pillow = buildPythonPackage rec {
-    name = "Pillow-3.2.0";
+    name = "Pillow-3.3.0";
 
     src = pkgs.fetchurl {
       url = "mirror://pypi/P/Pillow/${name}.tar.gz";
-      sha256 = "0jkqjnqj3bz3cwrvbw6q1zy6dn0c328r6v20k7m0lj0c45bs1c34";
+      sha256 = "1lfc197rj4b4inib9b0q0g3rsi204gywfrnk38yk8kssi2f7q7h3";
     };
 
     # Check is disabled because of assertion errors, see
@@ -17817,11 +17819,11 @@ in modules // {
 
   psutil = buildPythonPackage rec {
     name = "psutil-${version}";
-    version = "3.4.2";
+    version = "4.3.0";
 
     src = pkgs.fetchurl {
       url = "mirror://pypi/p/psutil/${name}.tar.gz";
-      sha256 = "b17fa01aa766daa388362d0eda5c215d77e03a8d37676b68971f37bf3913b725";
+      sha256 = "1w4r09fvn6kd80m5mx4ws1wz100brkaq6hzzpwrns8cgjzjpl6c6";
     };
 
     # Certain tests fail due to being in a chroot.
@@ -19995,6 +19997,12 @@ in modules // {
 
     propagatedBuildInputs = with self; [ urllib3 dns];
 
+    postPatch = ''
+      sed -i '19s/dns/"dnspython"/' setup.py
+    '';
+
+    # Some issues with etcd not in path even though most tests passed
+    doCheck = false;
 
     meta = {
       description = "A python client for Etcd";
@@ -22829,7 +22837,7 @@ in modules // {
 
     checkPhase = ''
       cd tests
-      export MAGICK_HOME="${pkgs.imagemagick}"
+      export MAGICK_HOME="${pkgs.imagemagick.dev}"
       export PYTHONPATH=$PYTHONPATH:../
       py.test
       cd ..
@@ -24664,8 +24672,12 @@ in modules // {
       sha256 = "1vpf98k4jp4yhbv2jbyq8dj5fdasrd26rkq34pacs5n7mkxxlr6c";
     };
 
+    LC_ALL = "en_US.UTF-8";
+
     propagatedBuildInputs = with self; [ itsdangerous ];
-    nativeBuildInputs = with self; [ pytest requests ];
+    buildInputs = with self; [ pytest requests2 pkgs.glibcLocales ];
+
+
 
     meta = {
       homepage = http://werkzeug.pocoo.org/;
@@ -26520,13 +26532,13 @@ in modules // {
   };
 
   libvirt = let
-    version = "2.0.0";
+    version = "2.1.0";
   in assert version == pkgs.libvirt.version; pkgs.stdenv.mkDerivation rec {
     name = "libvirt-python-${version}";
 
     src = pkgs.fetchurl {
       url = "http://libvirt.org/sources/python/${name}.tar.gz";
-      sha256 = "0h0x5lpsx97bvw20pzfcsdmmivximddq4qmn8fk0n55dqv0wn5kq";
+      sha256 = "1jxsxnhy303l3wpxzkyip39yq65zwc0pxni6ww0jgnv0pshpz23l";
     };
 
     buildInputs = with self; [ python pkgs.pkgconfig pkgs.libvirt lxml ];
