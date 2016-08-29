@@ -229,7 +229,7 @@ stdenv.mkDerivation ({
 
   postPatch =
     if (stdenv.isGNU
-        || (libcCross != null                  # e.g., building `gcc.crossDrv'
+        || (cross != null && libcCross != null   # e.g., building `gcc.crossDrv'
             && libcCross ? crossConfig
             && libcCross.crossConfig == "i586-pc-gnu")
         || (crossGNU && libcCross != null))
@@ -238,7 +238,7 @@ stdenv.mkDerivation ({
       # in glibc, so add the right `-I' flags to the default spec string.
       assert libcCross != null -> libpthreadCross != null;
       let
-        libc = if libcCross != null then libcCross else stdenv.glibc;
+        libc = if cross != null && libcCross != null then libcCross else stdenv.glibc;
         gnu_h = "gcc/config/gnu.h";
         extraCPPDeps =
              libc.propagatedBuildInputs
@@ -268,7 +268,7 @@ stdenv.mkDerivation ({
       # On NixOS, use the right path to the dynamic linker instead of
       # `/lib/ld*.so'.
       let
-        libc = if libcCross != null then libcCross else stdenv.cc.libc;
+        libc = if cross != null && libcCross != null then libcCross else stdenv.cc.libc;
       in
         '' echo "fixing the \`GLIBC_DYNAMIC_LINKER' and \`UCLIBC_DYNAMIC_LINKER' macros..."
            for header in "gcc/config/"*-gnu.h "gcc/config/"*"/"*.h
@@ -281,8 +281,7 @@ stdenv.mkDerivation ({
         ''
     else null;
 
-  inherit noSysDirs staticCompiler langJava crossStageStatic
-    libcCross crossMingw;
+  inherit noSysDirs staticCompiler langJava;
 
   nativeBuildInputs = [ texinfo which gettext ]
     ++ (optional (perl != null) perl)
@@ -390,6 +389,7 @@ stdenv.mkDerivation ({
     xwithFpu = if xgccFpu != null then " --with-fpu=${xgccFpu}" else "";
     xwithFloat = if xgccFloat != null then " --with-float=${xgccFloat}" else "";
   in {
+    inherit crossStageStatic libcCross crossMingw;
     AR = "${stdenv.cross.config}-ar";
     LD = "${stdenv.cross.config}-ld";
     CC = "${stdenv.cross.config}-gcc";
@@ -466,7 +466,7 @@ stdenv.mkDerivation ({
 
                                    # On GNU/Hurd glibc refers to Mach & Hurd
                                    # headers.
-                                   ++ optionals (libcCross != null && libcCross ? "propagatedBuildInputs" )
+                                   ++ optionals (cross != null && libcCross != null && libcCross ? "propagatedBuildInputs" )
                                         libcCross.propagatedBuildInputs)));
 
   LIBRARY_PATH = concatStrings

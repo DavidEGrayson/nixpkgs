@@ -5,7 +5,7 @@
 # Posix utilities, the GNU C compiler, and so on.  On other systems,
 # we use the native C library.
 
-{ system, allPackages ? import ../.., platform, config, lib }:
+{ system, allPackages ? import ../.., platform, config, lib, crossStdenv }:
 
 
 rec {

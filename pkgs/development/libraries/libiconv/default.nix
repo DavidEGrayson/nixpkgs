@@ -1,7 +1,5 @@
 { fetchurl, stdenv, lib }:
 
-assert !stdenv.isLinux || stdenv ? cross; # TODO: improve on cross
-
 stdenv.mkDerivation rec {
   name = "libiconv-1.14";
 
