@@ -23,5 +23,5 @@ rec {
   sameLibiconv = pkgs.libiconv == pkgsWithCross.libiconv;
   sameGcc5 = pkgs.gcc5 == pkgsWithCross.gcc5;
 
-  testPass = sameLibiconv && sameGcc5;
+  testsPass = sameLibiconv && sameGcc5;
 }
