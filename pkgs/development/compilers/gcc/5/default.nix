@@ -283,12 +283,6 @@ stdenv.mkDerivation ({
 
   inherit noSysDirs staticCompiler langJava;
 
-  # This is only here because it was here in previous commits and we
-  # want to avoid a meaningless mass rebuild.  These variables get
-  # overridden via crossAttrs in an actual cross-build.
-  crossMingw = false;
-  crossStageStatic = true;
-
   nativeBuildInputs = [ texinfo which gettext ]
     ++ (optional (perl != null) perl)
     ++ (optional javaAwtGtk pkgconfig);
@@ -550,4 +544,10 @@ stdenv.mkDerivation ({
 // optionalAttrs (!stripped || cross != null) { dontStrip = true; NIX_STRIP_DEBUG = 0; }
 
 // optionalAttrs (enableMultilib) { dontMoveLib64 = true; }
+
+# This is only here because it was here in previous commits and we
+# want to avoid a meaningless mass rebuild.  These variables get
+# overridden via crossAttrs in an actual cross-build.
+// { crossMingw = false; crossStageStatic = true; }
+
 )
