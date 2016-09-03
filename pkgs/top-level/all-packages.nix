@@ -4447,8 +4447,8 @@ in
 
   gccCrossStageStatic = let
     libcCross1 =
-      if stdenv.cross.libc == "msvcrt" then windows.mingw_w64_headers
-      else if stdenv.cross.libc == "libSystem" then darwin.xcode
+      if crossSystem.libc == "msvcrt" then windows.mingw_w64_headers
+      else if crossSystem.libc == "libSystem" then darwin.xcode
       else null;
     in wrapGCCCross {
       gcc = forceNativeDrv (gcc.cc.override {

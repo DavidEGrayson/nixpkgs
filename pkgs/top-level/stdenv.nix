@@ -2,7 +2,7 @@
 
 rec {
   allStdenvs = import ../stdenv {
-    inherit system allPackages platform config lib crossStdenv;
+    inherit system allPackages platform config lib;
   };
 
   defaultStdenv = allStdenvs.stdenv // { inherit platform; };
