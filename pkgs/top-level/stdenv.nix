@@ -7,14 +7,11 @@ rec {
 
   defaultStdenv = allStdenvs.stdenv // { inherit platform; };
 
-  crossStdenv = if crossSystem == null then null else
-    import ../stdenv/cross {
-      inherit crossSystem allPackages;
-    };
-
   stdenv =
     if bootStdenv != null then
       bootStdenv // { inherit platform; }
+    else if crossSystem != null then
+      (allPackages { bootStdenv = defaultStdenv; }).stdenvCross
     else if (config.replaceStdenv or null) != null then
       config.replaceStdenv {
         pkgs = allPackages {
