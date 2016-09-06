@@ -98,9 +98,9 @@ let
 
       aliases = self: super: import ./aliases.nix super;
 
-      # stdenvOverrides is used to avoid circular dependencies for building
-      # the standard build environment. This mechanism uses the override
-      # mechanism to implement some staged compilation of the stdenv.
+      # stdenvOverrides is used to avoid having multiple of versions
+      # of certain dependencies that were used in bootstrapping the
+      # standard environment.
       stdenvOverrides = self: super:
         lib.optionalAttrs (super.stdenv ? overrides)
           (super.stdenv.overrides super);
