@@ -7395,7 +7395,8 @@ in
     withGd = true;
   };
 
-  glibcCross = forceNativeDrv (glibc.override {
+  glibcCross = forceNativeDrv (callPackage ../development/libraries/glibc {
+    installLocales = false;
     gccCross = gccCrossStageStatic;
     linuxHeaders = linuxHeadersCross;
   });
