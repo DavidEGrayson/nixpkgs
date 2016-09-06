@@ -4451,12 +4451,17 @@ in
       else if crossSystem.libc == "libSystem" then darwin.xcode
       else null;
     in wrapGCCCross {
-      gcc = forceNativeDrv (gcc.cc.override {
+      gcc = forceNativeDrv (callPackage ../development/compilers/gcc/5 {
         cross = crossSystem;
         crossStageStatic = true;
-        langCC = false;
+        noSysDirs = true;
+        profiledCompiler = gcc.cc.profiledCompiler;
+        isl = isl_0_14;
         libcCross = libcCross1;
         enableShared = false;
+        langCC = false;
+        langObjC = false;
+        langObjCpp = false;
       });
       libc = libcCross1;
       binutils = binutilsCross;
@@ -4472,13 +4477,20 @@ in
   };
 
   gccCrossStageFinal = wrapGCCCross {
-    gcc = forceNativeDrv (gcc.cc.override {
+    gcc = forceNativeDrv (callPackage ../development/compilers/gcc/5 {
       cross = crossSystem;
       crossStageStatic = false;
+      noSysDirs = true;
+      profiledCompiler = gcc.cc.profiledCompiler;
+      isl = isl_0_14;
+      libcCross = libcCross;
 
       # XXX: We have troubles cross-compiling libstdc++ on MinGW (see
       # <http://hydra.nixos.org/build/4268232>), so don't even try.
       langCC = crossSystem.config != "i686-pc-mingw32";
+
+      langObjC = false;
+      langObjCpp = false;
     });
     libc = libcCross;
     binutils = binutilsCross;
