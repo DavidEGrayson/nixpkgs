@@ -26,6 +26,7 @@
   mpfr,
   nauty,
   ncurses,  # Note: Macaulay 2 called for ncurses5
+  nix,
   ntl,
   pari,
   pkgconfig,
@@ -45,20 +46,20 @@ stdenv.mkDerivation rec {
   commit = "634723eb418b6329e56a2c7037a7fc38c2d48a59";
 
   src = stdenv.mkDerivation rec {
-    name = "macaulay2-full-source-${version}.tar.gz";
-    buildInputs = [ git ];
+    name = "macaulay2-full-source-${version}.nar";
+    buildInputs = [ git nix ];
     SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
     inherit commit;
     builder = ./downloader.sh;
     outputHashAlgo = "sha256";
-    outputHashMode = "recursive";
+    outputHashMode = "flat";
     outputHash = "0jwwijg5k0vnrp9mlf555n2bijpggqljcax9kvy79k46fgj6v82q";
   };
 
   buildInputs = [
     autoconf automake bison boehmgc boost cddlib emacs flex flint gdbm gfan
     gfortran givaro glpk gmp gtest liblapack libmpc libtool libxml2 lzma mpfr
-    nauty ncurses ntl pari pkgconfig readline subversion texinfo unzip zlib
+    nauty ncurses nix ntl pari pkgconfig readline subversion texinfo unzip zlib
   ];
 
   libxml2_dev = libxml2.dev;  # TODO: something nicer
