@@ -5550,6 +5550,8 @@ in
 
   lush2 = callPackage ../development/interpreters/lush {};
 
+  macaulay2 = callPackage ../development/interpreters/Macaulay2 {};
+
   maude = callPackage ../development/interpreters/maude {
     bison = bison2;
     flex = flex_2_5_35;
