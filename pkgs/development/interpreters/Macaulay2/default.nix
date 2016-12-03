@@ -1,28 +1,38 @@
-{ stdenv, fetchurl,
+{
+  autoconf,
+  automake,
   bison,
-  emacs,
-  flex,
-  gfortran,
-  boost,
-  # libcdd,  # TODO: add libcdd to Nix
   boehmgc,
+  boost,
+  cddlib,
+  emacs,
+  fetchurl,
+  flex,
+  flint,
   gdbm,
+  gfan,
+  gfortran,
+  givaro,
   glpk,
-  gmp,  # Note: Macaulay 2 called for the gmp3 Debian package
+  gmp,      # Note: Macaulay 2 called for the gmp3 Debian package
+  gtest,
   liblapack,
-  lzma,
-  mpfr,
-  ncurses,  # Note: Macaulay 2 called for ncurses5
-  # libntl,  # TODO: add libntl to Nix
-  pari,
-  readline,
+  libmpc,
   libtool,
   libxml2,
-  zlib,
+  lzma,
+  mpfr,
+  nauty,
+  ncurses,  # Note: Macaulay 2 called for ncurses5
+  ntl,
+  pari,
   pkgconfig,
+  readline,
+  stdenv,
   subversion,
+  texinfo,
   unzip,
-  libmpc
+  zlib
   # Note: Macaulay 2 docs also listed these Ubuntu packages:
   #   pinentry-curses, xbase-clients, openssh-server.
 }:
@@ -38,17 +48,16 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [
-    bison emacs flex gfortran boost boehmgc gdbm glpk gmp liblapack lzma mpfr
-    ncurses pari readline libtool libxml2 zlib pkgconfig subversion unzip libmpc
+    autoconf automake bison boehmgc boost cddlib emacs flex flint gdbm gfan
+    gfortran givaro glpk gmp gtest liblapack libmpc libtool libxml2 lzma mpfr
+    nauty ncurses ntl pari pkgconfig readline subversion texinfo unzip zlib
   ];
+
+  libxml2_dev = libxml2.dev;  # TODO: something nicer
 
   builder = ./builder.sh;
 
-  FC=gfortran;
-
-  #  On a 32-bit system, add
-  #    --with-mpir-config-options="ABI=32 --build=i686-pc-linux-gnu"
-  #    to the "configure" command line
+  FC = "gfortran";
 
   doCheck = true;
 
