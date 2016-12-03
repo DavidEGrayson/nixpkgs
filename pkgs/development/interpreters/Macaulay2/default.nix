@@ -4,6 +4,7 @@
   bison,
   boehmgc,
   boost,
+  cacert,
   cddlib,
   emacs,
   fetchurl,
@@ -12,6 +13,7 @@
   gdbm,
   gfan,
   gfortran,
+  git,
   givaro,
   glpk,
   gmp,      # Note: Macaulay 2 called for the gmp3 Debian package
@@ -38,13 +40,19 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "macaulay2-1.9.2";
-
+  name = "macaulay2-${version}";
+  version = "1.9.2";
   commit = "634723eb418b6329e56a2c7037a7fc38c2d48a59";
 
-  src = fetchurl {
-    url = "https://github.com/Macaulay2/M2/archive/${commit}.tar.gz";
-    sha256 = "0qs6253sxf88023zr54228ykp77rbd0sg1kc3mmk0bv9qip3gd2x";
+  src = stdenv.mkDerivation rec {
+    name = "macaulay2-full-source-${version}.tar.gz";
+    buildInputs = [ git ];
+    SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
+    inherit commit;
+    builder = ./downloader.sh;
+    outputHashAlgo = "sha256";
+    outputHashMode = "recursive";
+    outputHash = "0jwwijg5k0vnrp9mlf555n2bijpggqljcax9kvy79k46fgj6v82q";
   };
 
   buildInputs = [
