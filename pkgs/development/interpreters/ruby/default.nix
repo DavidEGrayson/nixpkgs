@@ -130,7 +130,7 @@ let
 
         configureFlags = [
           (lib.enableFeature (!stdenv.hostPlatform.isStatic) "shared")
-          (lib.enableFeature true "pthread")
+          (lib.enableFeature false "pthread")
           (lib.withFeatureAs true "soname" "ruby-${version}")
           (lib.withFeatureAs useBaseRuby "baseruby" "${baseRuby}/bin/ruby")
           (lib.enableFeature jitSupport "jit-support")
