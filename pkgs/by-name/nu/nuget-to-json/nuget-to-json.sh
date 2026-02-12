@@ -23,7 +23,7 @@ excluded_list=$(realpath "${2:-/dev/null}")
 export DOTNET_NOLOGO=1
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-mapfile -t sources < <(dotnet nuget list source --format short | awk '/^E / { print $2 }')
+mapfile -t sources < <(dotnet nuget list source --format short | awk '/^E / { print $2 }' | grep ^http)
 wait "$!"
 
 declare -a remote_sources

@@ -1081,6 +1081,11 @@ lib.mapAttrs mkLicense (
       fullName = "Microsoft Public License";
     };
 
+    msrl = {
+      spdxId = "MS-RL";
+      fullName = "Microsoft Reciprocal License";
+    };
+
     mulan-psl2 = {
       spdxId = "MulanPSL-2.0";
       fullName = "Mulan Permissive Software License, Version 2";
