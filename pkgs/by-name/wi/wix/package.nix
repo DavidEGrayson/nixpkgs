@@ -18,10 +18,12 @@ buildDotnetModule rec {
   dotnet-runtime = dotnet-sdk.runtime;
 
   nugetDeps = ./deps.json;
-  projectFile = "src/api/wix/WixToolset.Data/WixToolset.Data.csproj";  # tmphax
+  projectFile = "src/api/wix/WixToolset.Data/WixToolset.Data.csproj";
+  #projectFile = "src/wix/wix.sln";
 
   dotnetFlags = [
     "/p:TargetFramework=netstandard2.0"
+    # "/p:TargetFramework=net8.0"
   ];
 
   dotnetRestoreFlags = [
@@ -30,8 +32,15 @@ buildDotnetModule rec {
 
   preConfigure = ''
     echo "Building SomeVerInit"
-    dotnet build ./src/internal/SetBuildNumber/SomeVerInit.verproj \
-      --configuration "$dotnetBuildType"
+    dotnet build ./src/internal/SetBuildNumber/SomeVerInit.verproj --configuration "$dotnetBuildType"
+
+#    echo "Building WixToolset.Data.csproj"
+#    dotnet build ./src/api/wix/WixToolset.Data/WixToolset.Data.csproj /p:TargetFramework=netstandard2.0
+#    dotnet pack src/api/wix/WixToolset.Data/WixToolset.Data.csproj \
+#      -c "$dotnetBuildType" \
+#      -o ../artifacts \
+#      /p:TargetFramework=netstandard2.0 \
+#      /p:NoWarn=NU1604
   '';
 
   meta = {
