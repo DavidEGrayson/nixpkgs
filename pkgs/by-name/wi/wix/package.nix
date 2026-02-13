@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchgit, buildDotnetModule, dotnetCorePackages, git }:
+{ lib, stdenv, fetchgit, dotnetCorePackages, git }:
 let
   pname = "wix";
   version = "6.0.2";
@@ -9,39 +9,14 @@ let
     leaveDotGit = true;
   };
 in
-buildDotnetModule rec {
+stdenv.mkDerivation rec {
   inherit pname version src;
 
-  nativeBuildInputs = [ git ];
+  buildInputs = map dotnetCorePackages.fetchNupkg (lib.importJSON ./deps.json);
 
-  dotnet-sdk = dotnetCorePackages.sdk_8_0;
-  dotnet-runtime = dotnet-sdk.runtime;
+  nativeBuildInputs = [ git dotnetCorePackages.sdk_8_0 ];
 
-  nugetDeps = ./deps.json;
-  projectFile = "src/api/wix/WixToolset.Data/WixToolset.Data.csproj";
-  #projectFile = "src/wix/wix.sln";
-
-  dotnetFlags = [
-    "/p:TargetFramework=netstandard2.0"
-    # "/p:TargetFramework=net8.0"
-  ];
-
-  dotnetRestoreFlags = [
-    "/p:NoWarn=NU1604"
-  ];
-
-  preConfigure = ''
-    echo "Building SomeVerInit"
-    dotnet build ./src/internal/SetBuildNumber/SomeVerInit.verproj --configuration "$dotnetBuildType"
-
-#    echo "Building WixToolset.Data.csproj"
-#    dotnet build ./src/api/wix/WixToolset.Data/WixToolset.Data.csproj /p:TargetFramework=netstandard2.0
-#    dotnet pack src/api/wix/WixToolset.Data/WixToolset.Data.csproj \
-#      -c "$dotnetBuildType" \
-#      -o ../artifacts \
-#      /p:TargetFramework=netstandard2.0 \
-#      /p:NoWarn=NU1604
-  '';
+  builder = ./builder.sh;
 
   meta = {
     description = "The most powerful set of tools available to create your Windows installation experience.";
