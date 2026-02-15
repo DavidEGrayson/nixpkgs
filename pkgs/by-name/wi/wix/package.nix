@@ -26,9 +26,9 @@ let
   };
 
   update-deps = mkShell rec {
-    inherit src;
+    inherit pname version src;
     nativeBuildInputs = [ dotnet-sdk git nuget-to-json ];
-    updateDeps = true;
+    dontConfigureNuget = true;
     shellHook = ''
       set -ue
       cd pkgs/by-name/wi/wix
@@ -38,6 +38,7 @@ let
       source ../../../wix/builder.sh
       popd > /dev/null
       nuget-to-json $NUGET_PACKAGES > deps.json
+      echo "Updated deps.json"
       exit 0
     '';
   };
