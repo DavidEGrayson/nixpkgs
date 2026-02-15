@@ -1,0 +1,26 @@
+diff --git a/src/api/api_t.proj b/src/api/api_t.proj
+index d2bb8af3..6d7d1232 100644
+--- a/src/api/api_t.proj
++++ b/src/api/api_t.proj
+@@ -1,9 +1,7 @@
+ <Project Sdk="Microsoft.Build.Traversal">
+   <ItemGroup>
+-    <ProjectReference Include="burn\api_burn_t.proj" Targets="Restore" BuildInParallel="false" />
+     <ProjectReference Include="wix\api_wix_t.proj" Targets="Restore" BuildInParallel="false" />
+ 
+-    <ProjectReference Include="burn\api_burn_t.proj" />
+     <ProjectReference Include="wix\api_wix_t.proj" />
+   </ItemGroup>
+ </Project>
+diff --git a/src/wix/WixToolset.Core.Burn/WixToolset.Core.Burn.csproj b/src/wix/WixToolset.Core.Burn/WixToolset.Core.Burn.csproj
+index 3184cc1f..16e89794 100644
+--- a/src/wix/WixToolset.Core.Burn/WixToolset.Core.Burn.csproj
++++ b/src/wix/WixToolset.Core.Burn/WixToolset.Core.Burn.csproj
+@@ -17,7 +17,6 @@
+   </ItemGroup>
+ 
+   <ItemGroup>
+-    <PackageReference Include="WixToolset.Burn" />
+     <PackageReference Include="WixToolset.Data" />
+     <PackageReference Include="WixToolset.Dtf.Resources" />
+     <PackageReference Include="WixToolset.Extensibility" />

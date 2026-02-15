@@ -4,7 +4,13 @@ cp -r --no-preserve=mode $src wix
 cd wix
 git tag "v$version"
 git remote add origin https://github.com/wixtoolset/wix
+for patch in $patches; do
+  echo applying patch $patch
+  patch -p1 -i $patch
+done
 cd ..
+
+#patchPhase
 
 if [ "$dontConfigureNuget" = 1 ]; then
   sed -i 's|build\\artifacts|build/artifacts|g' wix/nuget.config
@@ -20,20 +26,26 @@ fi
 
 FLAGS="--configuration Release -p:TargetFrameworks=netstandard2.0 -p:GenerateDocumentationFile=false -p:ContinuousIntegrationBuild=true -p:Deterministic=true -p:NuGetAudit=false -clp:NoSummary"
 
+build_artifact() {
+  local proj=$1
+  echo "==== Building $(basename $proj) ===="
+  dotnet build $proj $FLAGS
+  dotnet pack $proj $FLAGS --output "$artifacts"
+  echo "==== Done building $(basename $proj) ===="
+  echo
+}
+
 echo "building SomeVerInit"
 dotnet build wix/src/internal/SetBuildNumber/SomeVerInit.verproj $FLAGS
 
-echo "building WixToolset.Data"
-dotnet build wix/src/api/wix/WixToolset.Data/WixToolset.Data.csproj $FLAGS \
-  --property:NoWarn=NU1604%3BCS1591
-echo "packing WixToolSet.Data"
-dotnet pack wix/src/api/wix/WixToolset.Data/WixToolset.Data.csproj $FLAGS \
-  --output "$artifacts"
-echo "done with WixToolset.Data"
+build_artifact wix/src/api/wix/WixToolset.Data/WixToolset.Data.csproj
+build_artifact wix/src/dtf/WixToolset.Dtf.Resources/WixToolset.Dtf.Resources.csproj
+build_artifact wix/src/api/wix/WixToolset.Extensibility/WixToolset.Extensibility.csproj
+build_artifact wix/src/libs/WixToolset.Versioning/WixToolset.Versioning.csproj
 
 dotnet build wix/src/wix/wix/wix.csproj $FLAGS
 
-#dotnet publish wix/src/api/wix/WixToolset.Data/WixToolset.Data.csproj $FLAGS \
+#dotnet publish wix/src/wix/wix/wix.csproj $FLAGS \
 #  --output $out/lib/wix \
 #  --no-restore --no-build --runtime linux-x64 \
 #  --no-self-contained -p:PublishTrimmed=false -p:UseAppHost=true

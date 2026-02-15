@@ -8,11 +8,12 @@ let
     hash = "sha256-6ii0VdSGuBVS4GL0W9I/sj694a0+Dg0xTKLxEQDwmGo=";
     leaveDotGit = true;
   };
+  patches = [ ./no_burn.patch ];
 
   dotnet-sdk = dotnetCorePackages.sdk_8_0;
 
   wix = stdenv.mkDerivation rec {
-    inherit pname version src;
+    inherit pname version src patches;
     buildInputs = map dotnetCorePackages.fetchNupkg (lib.importJSON ./deps.json);
     nativeBuildInputs = [ dotnet-sdk git ];
     builder = ./builder.sh;
@@ -26,7 +27,7 @@ let
   };
 
   update-deps = mkShell rec {
-    inherit pname version src;
+    inherit pname version src patches;
     nativeBuildInputs = [ dotnet-sdk git nuget-to-json ];
     dontConfigureNuget = true;
     shellHook = ''
@@ -35,7 +36,7 @@ let
       rm -rf tmp && mkdir -p tmp/build tmp/out
       export out=$PWD/tmp/out
       pushd tmp/build
-      source ../../../wix/builder.sh
+      source ../../../wix/builder.sh || echo builder.sh failed
       popd > /dev/null
       nuget-to-json $NUGET_PACKAGES > deps.json
       echo "Updated deps.json"
