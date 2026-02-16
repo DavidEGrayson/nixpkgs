@@ -1,4 +1,4 @@
-{ lib, stdenv, mkShell, fetchgit, dotnetCorePackages, git, nuget-to-json }:
+{ lib, stdenv, pkgsCross, mkShell, fetchgit, dotnetCorePackages, git, nuget-to-json }:
 let
   pname = "wix";
   version = "6.0.2";
@@ -8,14 +8,35 @@ let
     hash = "sha256-6ii0VdSGuBVS4GL0W9I/sj694a0+Dg0xTKLxEQDwmGo=";
     leaveDotGit = true;
   };
-  patches = [ ./no_burn.patch ];
+  patches = [ ./no_burn.patch ./dutil.patch ];
 
   dotnet-sdk = dotnetCorePackages.sdk_8_0;
+
+  mingw_gcc = pkgsCross.ucrt64.stdenv.cc;
+
+  #cross = pkgsCross.ucrt64;
+  #mingw_gcc_patched = cross.stdenv.cc.cc.overrideAttrs (old: {
+  #  postPatch = (old.postPatch or "") + ''
+  #    echo "patching libstdc++ to avoid __in/__out"
+  #    sed -i -E 's/\<__(in|out)\>/__stl_\1/g' libstdc++-v3/include/bits/stl_{algobase,pair}.h
+  #  '';
+  #});
+  #mingw_gcc = cross.stdenv.cc.override {
+  #  cc = mingw_gcc_patched;
+  #};
+  #old_mingw_gcc = pkgsCross.ucrt64.buildPackages.gcc.overrideAttrs (old:
+  #  {
+  #    postPatch = (old.postPatch or "") + ''
+  #      echo hello running sed
+  #      sed -E 's/\<__(in|out)\>/__stl_\1/g' src/libstdc++-v3/include/bits/stl_pair.h
+  #    '';
+  #  }
+  #);
 
   wix = stdenv.mkDerivation rec {
     inherit pname version src patches;
     buildInputs = map dotnetCorePackages.fetchNupkg (lib.importJSON ./deps.json);
-    nativeBuildInputs = [ dotnet-sdk git ];
+    nativeBuildInputs = [ dotnet-sdk git mingw_gcc ];
     builder = ./builder.sh;
     meta = {
       description = "The most powerful set of tools available to create your Windows installation experience.";
@@ -28,7 +49,7 @@ let
 
   update-deps = mkShell rec {
     inherit pname version src patches;
-    nativeBuildInputs = [ dotnet-sdk git nuget-to-json ];
+    nativeBuildInputs = wix.builtInputs + [ nuget-to-json ];
     dontConfigureNuget = true;
     shellHook = ''
       set -ue

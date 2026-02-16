@@ -14,6 +14,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     hash = "sha256-Wv6CKvXE7b9n2q9F7sYdU49J7vaxlSTeZIl8a5WCjK8=";
   };
 
+  patches = [
+    ./esent.patch
+  ];
+
   configureFlags = [
     (lib.withFeatureAs true "default-msvcrt" crt)
   ];

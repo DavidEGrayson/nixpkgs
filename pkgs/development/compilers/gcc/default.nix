@@ -292,6 +292,10 @@ pipe
           )
         )
       )
+      # Don't use __in and __out in STL headers since it conflicts with Microsoft's sal.h.
+      + optionalString targetPlatform.isWindows ''
+        sed -i -E 's/\<__(in|out)\>/__stl_\1/g' libstdc++-v3/include/bits/stl_{algobase,pair}.h
+      ''
       + optionalString targetPlatform.isAvr ''
         makeFlagsArray+=(
            '-s' # workaround for hitting hydra log limit

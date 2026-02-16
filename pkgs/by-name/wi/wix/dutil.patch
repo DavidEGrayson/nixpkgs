@@ -1,0 +1,93 @@
+diff --git a/src/libs/dutil/WixToolset.DUtil/inc/cabutil.h b/src/libs/dutil/WixToolset.DUtil/inc/cabutil.h
+index 0bedba80..93ed7728 100644
+--- a/src/libs/dutil/WixToolset.DUtil/inc/cabutil.h
++++ b/src/libs/dutil/WixToolset.DUtil/inc/cabutil.h
+@@ -3,7 +3,7 @@
+ 
+ 
+ #include <fdi.h>
+-#include <sys\stat.h>
++#include <sys/stat.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+diff --git a/src/libs/dutil/WixToolset.DUtil/precomp.h b/src/libs/dutil/WixToolset.DUtil/precomp.h
+index 81dc7992..c94a7a7d 100644
+--- a/src/libs/dutil/WixToolset.DUtil/precomp.h
++++ b/src/libs/dutil/WixToolset.DUtil/precomp.h
+@@ -12,7 +12,46 @@
+ 
+ #define JET_VERSION 0x0501
+ 
+-#include <WinSock2.h>
++#include <sal.h>
++#define __in
++#define __in_bcount_opt(b)
++#define __in_z
++#define __in_z_opt
++#define __in_ecount_opt(b)
++#define __in_xcount(b)
++#define __out
++#define __out_bcount_part_opt(x,y)
++#define __out_data_source(x)
++#define __out_ecount_opt(b)
++#define __out_range(x,y)
++#define __out_z
++#define __out_z_opt
++#define __inout_opt
++#define __inout_z
++#define __inout_z_opt
++#define __deref_opt_out_z
++#define __deref_opt_out_z_opt
++#define __deref_out_bcount(b)
++#define __deref_out_bcount_full(b)
++#define __deref_out_bcount_opt(b)
++#define __deref_out_ecount_opt(b)
++#define __deref_out_ecount_part(x,y)
++#define __deref_out_ecount_z(x)
++#define __deref_out_z
++#define __deref_out_z_opt
++#define __deref_inout
++#define __deref_inout_bcount(b)
++#define __deref_inout_bcount_full(b)
++#define __deref_inout_ecount(b)
++#define __deref_inout_ecount_opt(x)
++#define __deref_inout_ecount_part(x,y)
++#define __deref_inout_z
++#define __deref_inout_z_opt
++#define __format_string
++#define __nullnullterminated
++#define __reserved
++
++#include <winsock2.h>
+ #include <windows.h>
+ #include <windowsx.h>
+ #include <intsafe.h>
+@@ -24,22 +63,21 @@
+ #include <shlobj.h>
+ #include <shlwapi.h>
+ #include <gdiplus.h>
+-#include <Tlhelp32.h>
++#include <tlhelp32.h>
+ #include <lm.h>
+-#include <Iads.h>
++#include <iads.h>
+ #include <activeds.h>
+ #include <richedit.h>
+ #include <stddef.h>
+ #include <esent.h>
+-#include <ahadmin.h>
+-#include <SRRestorePtAPI.h>
++#include <srrestoreptapi.h>
+ #include <userenv.h>
+-#include <WinIoCtl.h>
++#include <winioctl.h>
+ #include <wtsapi32.h>
+ #include <wuapi.h>
+ #include <commctrl.h>
+ #include <dbt.h>
+-#include <ShellScalingApi.h>
++#include <shellscalingapi.h>
+ 
+ #include "dutilsources.h"
+ #include "dutil.h"

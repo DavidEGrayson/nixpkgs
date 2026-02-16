@@ -10,7 +10,14 @@ for patch in $patches; do
 done
 cd ..
 
-#patchPhase
+echo "==== Building dutil ===="
+dutil=$PWD/wix/src/libs/dutil/WixToolset.DUtil
+mkdir build_dutil
+cd build_dutil
+x86_64-w64-mingw32-g++ -I $dutil/inc/ $dutil/acl2util.cpp -o acl2util.o
+ar rcs dutil.a *.o
+cd ..
+echo "==== Done building dutil ===="
 
 if [ "$dontConfigureNuget" = 1 ]; then
   sed -i 's|build\\artifacts|build/artifacts|g' wix/nuget.config
