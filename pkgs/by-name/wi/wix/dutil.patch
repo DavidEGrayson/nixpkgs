@@ -11,11 +11,61 @@ index 0bedba80..93ed7728 100644
  
  #ifdef __cplusplus
  extern "C" {
+diff --git a/src/libs/dutil/WixToolset.DUtil/inc/dutil.h b/src/libs/dutil/WixToolset.DUtil/inc/dutil.h
+index 7d8c7d81..f23157a0 100644
+--- a/src/libs/dutil/WixToolset.DUtil/inc/dutil.h
++++ b/src/libs/dutil/WixToolset.DUtil/inc/dutil.h
+@@ -120,7 +120,7 @@ void DAPI Dutil_RootFailure(__in_z LPCSTR szFile, __in int iLine, __in HRESULT h
+ 
+ #define ExitFunctionWithLastError(x) { x = HRESULT_FROM_WIN32(::GetLastError()); goto LExit; }
+ 
+-#define ExitTraceSource(d, x, s, ...) { TraceError(x, s, __VA_ARGS__); (void)Dutil_TraceErrorSource(__FILE__, __LINE__, REPORT_ERROR, d, x, s, __VA_ARGS__); }
++#define ExitTraceSource(d, x, s, ...) { TraceError(x, s __VA_OPT__(,) __VA_ARGS__); (void)Dutil_TraceErrorSource(__FILE__, __LINE__, REPORT_ERROR, d, x, s __VA_OPT__(,) __VA_ARGS__); }
+ #define ExitTraceDebugSource(d, x, s, ...) { TraceErrorDebug(x, s, __VA_ARGS__); (void)Dutil_TraceErrorSource(__FILE__, __LINE__, REPORT_DEBUG, d, x, s, __VA_ARGS__); }
+ 
+ #define ExitOnLastErrorSource(d, x, s, ...) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (FAILED(x)) { Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__); goto LExit; } }
+diff --git a/src/libs/dutil/WixToolset.DUtil/inc/monutil.h b/src/libs/dutil/WixToolset.DUtil/inc/monutil.h
+index f644e205..1deca578 100644
+--- a/src/libs/dutil/WixToolset.DUtil/inc/monutil.h
++++ b/src/libs/dutil/WixToolset.DUtil/inc/monutil.h
+@@ -12,8 +12,7 @@ extern "C" {
+ typedef void* MON_HANDLE;
+ typedef const void* C_MON_HANDLE;
+ 
+-// Defined in regutil.h
+-enum REG_KEY_BITNESS;
++#include "regutil.h"
+ 
+ extern const int MON_HANDLE_BYTES;
+ 
+diff --git a/src/libs/dutil/WixToolset.DUtil/inc/wiutil.h b/src/libs/dutil/WixToolset.DUtil/inc/wiutil.h
+index 71f40e8a..f00a6617 100644
+--- a/src/libs/dutil/WixToolset.DUtil/inc/wiutil.h
++++ b/src/libs/dutil/WixToolset.DUtil/inc/wiutil.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ // Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the Microsoft Reciprocal License. See LICENSE.TXT file in the project root for full license information.
+ 
++#include <msi.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
 diff --git a/src/libs/dutil/WixToolset.DUtil/precomp.h b/src/libs/dutil/WixToolset.DUtil/precomp.h
-index 81dc7992..c94a7a7d 100644
+index 81dc7992..4590ba46 100644
 --- a/src/libs/dutil/WixToolset.DUtil/precomp.h
 +++ b/src/libs/dutil/WixToolset.DUtil/precomp.h
-@@ -12,7 +12,46 @@
+@@ -3,16 +3,55 @@
+ 
+ 
+ #ifndef _WIN32_WINNT
+-#define _WIN32_WINNT 0x0500
++#define _WIN32_WINNT 0x0600
+ #endif
+ 
+ #ifndef _WIN32_MSI
+-#define _WIN32_MSI 200
++#define _WIN32_MSI 500
+ #endif
  
  #define JET_VERSION 0x0501
  
