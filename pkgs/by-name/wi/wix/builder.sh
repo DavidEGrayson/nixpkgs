@@ -8,13 +8,19 @@ for patch in $patches; do
   echo applying patch $patch
   patch -p1 -i $patch
 done
+find -type f -name '*.dll' -delete
 cd ..
 
 echo "==== Building dutil ===="
 dutil=$PWD/wix/src/libs/dutil/WixToolset.DUtil
 mkdir build_dutil
 cd build_dutil
-x86_64-w64-mingw32-g++ -I $dutil/inc/ $dutil/acl2util.cpp -o acl2util.o
+x86_64-w64-mingw32-g++ -x c++-header -I $dutil/inc/ $dutil/precomp.h -o $dutil/precomp.h.gch
+for cpp in $dutil/*.cpp; do
+  base=$(basename $cpp)
+  echo "compiling $base"
+  x86_64-w64-mingw32-g++ -c -I $dutil/inc/ $cpp -o $base.o
+done
 ar rcs dutil.a *.o
 cd ..
 echo "==== Done building dutil ===="

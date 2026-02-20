@@ -10,28 +10,8 @@ let
   };
   patches = [ ./no_burn.patch ./dutil.patch ];
 
-  dotnet-sdk = dotnetCorePackages.sdk_8_0;
-
   mingw_gcc = pkgsCross.ucrt64.stdenv.cc;
-
-  #cross = pkgsCross.ucrt64;
-  #mingw_gcc_patched = cross.stdenv.cc.cc.overrideAttrs (old: {
-  #  postPatch = (old.postPatch or "") + ''
-  #    echo "patching libstdc++ to avoid __in/__out"
-  #    sed -i -E 's/\<__(in|out)\>/__stl_\1/g' libstdc++-v3/include/bits/stl_{algobase,pair}.h
-  #  '';
-  #});
-  #mingw_gcc = cross.stdenv.cc.override {
-  #  cc = mingw_gcc_patched;
-  #};
-  #old_mingw_gcc = pkgsCross.ucrt64.buildPackages.gcc.overrideAttrs (old:
-  #  {
-  #    postPatch = (old.postPatch or "") + ''
-  #      echo hello running sed
-  #      sed -E 's/\<__(in|out)\>/__stl_\1/g' src/libstdc++-v3/include/bits/stl_pair.h
-  #    '';
-  #  }
-  #);
+  dotnet-sdk = dotnetCorePackages.sdk_8_0;
 
   wix = stdenv.mkDerivation rec {
     inherit pname version src patches;

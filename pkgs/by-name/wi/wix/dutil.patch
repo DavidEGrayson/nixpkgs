@@ -1,3 +1,52 @@
+diff --git a/src/libs/dutil/WixToolset.DUtil/apuputil.cpp b/src/libs/dutil/WixToolset.DUtil/apuputil.cpp
+index eb96d515..1acdd291 100644
+--- a/src/libs/dutil/WixToolset.DUtil/apuputil.cpp
++++ b/src/libs/dutil/WixToolset.DUtil/apuputil.cpp
+@@ -147,7 +147,7 @@ HRESULT DAPI ApupFilterChain(
+     HRESULT hr = S_OK;
+     APPLICATION_UPDATE_CHAIN* pNewChain = NULL;
+     APPLICATION_UPDATE_ENTRY* prgEntries = NULL;
+-    DWORD cEntries = NULL;
++    DWORD cEntries = 0;
+ 
+     pNewChain = static_cast<APPLICATION_UPDATE_CHAIN*>(MemAlloc(sizeof(APPLICATION_UPDATE_CHAIN), TRUE));
+     ApupExitOnNull(pNewChain, hr, E_OUTOFMEMORY, "Failed to allocate filtered chain.");
+diff --git a/src/libs/dutil/WixToolset.DUtil/atomutil.cpp b/src/libs/dutil/WixToolset.DUtil/atomutil.cpp
+index d6fd3890..2bb8f4ea 100644
+--- a/src/libs/dutil/WixToolset.DUtil/atomutil.cpp
++++ b/src/libs/dutil/WixToolset.DUtil/atomutil.cpp
+@@ -927,6 +927,7 @@ static HRESULT ParseAtomUnknownElement(
+     IXMLDOMNamedNodeMap* pixnnmAttributes = NULL;
+     IXMLDOMNode* pixnAttribute = NULL;
+     ATOM_UNKNOWN_ELEMENT* pNewUnknownElement;
++    ATOM_UNKNOWN_ELEMENT** ppTail = ppUnknownElement;
+ 
+     pNewUnknownElement = (ATOM_UNKNOWN_ELEMENT*)MemAlloc(sizeof(ATOM_UNKNOWN_ELEMENT), TRUE);
+     AtomExitOnNull(pNewUnknownElement, hr, E_OUTOFMEMORY, "Failed to allocate unknown element.");
+@@ -972,7 +973,6 @@ static HRESULT ParseAtomUnknownElement(
+     }
+     AtomExitOnFailure(hr, "Failed to enumerate all attributes on ATOM unknown element.");
+ 
+-    ATOM_UNKNOWN_ELEMENT** ppTail = ppUnknownElement;
+     while (*ppTail)
+     {
+         ppTail = &(*ppTail)->pNext;
+@@ -1010,6 +1010,7 @@ static HRESULT ParseAtomUnknownAttribute(
+     BSTR bstrNodeName = NULL;
+     BSTR bstrNodeValue = NULL;
+     ATOM_UNKNOWN_ATTRIBUTE* pNewUnknownAttribute;
++    ATOM_UNKNOWN_ATTRIBUTE** ppTail = ppUnknownAttribute;
+ 
+     pNewUnknownAttribute = (ATOM_UNKNOWN_ATTRIBUTE*)MemAlloc(sizeof(ATOM_UNKNOWN_ATTRIBUTE), TRUE);
+     AtomExitOnNull(pNewUnknownAttribute, hr, E_OUTOFMEMORY, "Failed to allocate unknown attribute.");
+@@ -1038,7 +1039,6 @@ static HRESULT ParseAtomUnknownAttribute(
+     hr = StrAllocString(&pNewUnknownAttribute->wzValue, bstrNodeValue, 0);
+     AtomExitOnFailure(hr, "Failed to allocate ATOM unknown attribute value.");
+ 
+-    ATOM_UNKNOWN_ATTRIBUTE** ppTail = ppUnknownAttribute;
+     while (*ppTail)
+     {
+         ppTail = &(*ppTail)->pNext;
 diff --git a/src/libs/dutil/WixToolset.DUtil/inc/cabutil.h b/src/libs/dutil/WixToolset.DUtil/inc/cabutil.h
 index 0bedba80..93ed7728 100644
 --- a/src/libs/dutil/WixToolset.DUtil/inc/cabutil.h
@@ -51,10 +100,10 @@ index 71f40e8a..f00a6617 100644
  #ifdef __cplusplus
  extern "C" {
 diff --git a/src/libs/dutil/WixToolset.DUtil/precomp.h b/src/libs/dutil/WixToolset.DUtil/precomp.h
-index 81dc7992..4590ba46 100644
+index 81dc7992..97107054 100644
 --- a/src/libs/dutil/WixToolset.DUtil/precomp.h
 +++ b/src/libs/dutil/WixToolset.DUtil/precomp.h
-@@ -3,16 +3,55 @@
+@@ -3,16 +3,57 @@
  
  
  #ifndef _WIN32_WINNT
@@ -109,11 +158,13 @@ index 81dc7992..4590ba46 100644
 +#define __nullnullterminated
 +#define __reserved
 +
++#define __callback __stdcall
++
 +#include <winsock2.h>
  #include <windows.h>
  #include <windowsx.h>
  #include <intsafe.h>
-@@ -24,22 +63,21 @@
+@@ -24,22 +65,21 @@
  #include <shlobj.h>
  #include <shlwapi.h>
  #include <gdiplus.h>
