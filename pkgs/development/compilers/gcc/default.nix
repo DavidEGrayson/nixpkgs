@@ -294,7 +294,7 @@ pipe
       )
       # Don't use __in and __out in STL headers since it conflicts with Microsoft's sal.h.
       + optionalString targetPlatform.isWindows ''
-        sed -i -E 's/\<__(in|out)\>/__stl_\1/g' libstdc++-v3/include/bits/stl_{algobase,pair}.h
+        find libstdc++-v3/{include,config} -type f -exec sed -i -E 's/\<__(in|out)\>/__stl_\1/g' {} +
       ''
       + optionalString targetPlatform.isAvr ''
         makeFlagsArray+=(

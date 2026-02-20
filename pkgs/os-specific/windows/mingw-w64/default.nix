@@ -9,7 +9,7 @@
 
 stdenv.mkDerivation {
   pname = "mingw-w64";
-  inherit (mingw_w64_headers) version src patches meta;
+  inherit (mingw_w64_headers) version src meta;
 
   outputs = [
     "out"
