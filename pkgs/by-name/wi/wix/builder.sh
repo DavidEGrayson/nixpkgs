@@ -15,13 +15,15 @@ wixnative=$PWD/wix/src/wix/wixnative
 dutil=$PWD/wix/src/libs/dutil/WixToolset.DUtil
 
 echo "==== Building dutil ===="
+CFLAGS="-I $dutil/inc"
 mkdir build_dutil
 cd build_dutil
-x86_64-w64-mingw32-g++ -x c++-header -I $dutil/inc $dutil/precomp.h -o $dutil/precomp.h.gch
+x86_64-w64-mingw32-g++ -x c++-header $CFLAGS \
+  $dutil/precomp.h -o $dutil/precomp.h.gch
 for cpp in $dutil/*.cpp; do
   base=$(basename $cpp)
   echo "compiling $base"
-  x86_64-w64-mingw32-g++ -c -I $dutil/inc/ $cpp -o $base.o
+  x86_64-w64-mingw32-g++ -c $CFLAGS $cpp -o $base.o
 done
 ar rcs dutil.a *.o
 cd ..
@@ -30,17 +32,24 @@ echo "==== Done building dutil ===="
 echo "==== Building wixnative ===="
 mkdir build_wixnative
 cd build_wixnative
-x86_64-w64-mingw32-g++ -x c++-header -I $dutil/inc $wixnative/precomp.cpp -o $wixnative/precomp.cpp.gch
+LDFLAGS="-municode -static"
+CFLAGS="-municode -I $dutil/inc"
+x86_64-w64-mingw32-g++ -x c++-header $CFLAGS \
+  $wixnative/precomp.cpp -o $wixnative/precomp.cpp.gch
 rm $wixnative/precomp.cpp
 for cpp in $wixnative/*.cpp; do
   base=$(basename $cpp)
   echo "compiling $base"
-  x86_64-w64-mingw32-g++ -c -I $dutil/inc/ $cpp -o $base.o
+  x86_64-w64-mingw32-g++ -municode -c $CFLAGS $cpp -o $base.o
 done
-x86_64-w64-mingw32-g++ *.o ../build_dutil/dutil.a -o wixnative
+x86_64-w64-mingw32-g++ $LDFLAGS *.o ../build_dutil/dutil.a \
+  -lcrypt32 -lcabinet -lmsi -lwintrust -lversion -o wixnative.exe
+x86_64-w64-mingw32-strip wixnative.exe
 cd ..
 echo "==== Done building wixnative ===="
 
+mkdir $out && cp build_wixnative/wixnative.exe $out/
+exit 0  # tmphax
 
 
 if [ "$dontConfigureNuget" = 1 ]; then
