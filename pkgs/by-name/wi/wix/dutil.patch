@@ -299,6 +299,130 @@ index 09b150df..88c35cf6 100644
  
      while (!IsMatchExact(psd, dwIndexCandidate, pszString))
      {
+diff --git a/src/libs/dutil/WixToolset.DUtil/dirutil.cpp b/src/libs/dutil/WixToolset.DUtil/dirutil.cpp
+index d6d782e0..b4c56022 100644
+--- a/src/libs/dutil/WixToolset.DUtil/dirutil.cpp
++++ b/src/libs/dutil/WixToolset.DUtil/dirutil.cpp
+@@ -405,7 +405,7 @@ extern "C" HRESULT DAPI DirGetCurrent(
+         hr = StrMaxLength(*psczCurrentDirectory, &cchMax);
+         DirExitOnFailure(hr, "Failed to get max length of input buffer.");
+ 
+-        cchBuffer = (DWORD)min(DWORD_MAX, cchMax);
++        cchBuffer = (DWORD)min((SIZE_T)DWORD_MAX, cchMax);
+     }
+     else
+     {
+diff --git a/src/libs/dutil/WixToolset.DUtil/dlutil.cpp b/src/libs/dutil/WixToolset.DUtil/dlutil.cpp
+index 9c704ee8..8b589a31 100644
+--- a/src/libs/dutil/WixToolset.DUtil/dlutil.cpp
++++ b/src/libs/dutil/WixToolset.DUtil/dlutil.cpp
+@@ -624,7 +624,7 @@ static HRESULT OpenRequest(
+     }
+ 
+     // Open the request and add the header if provided.
+-    hUrl = ::HttpOpenRequestW(hConnect, wzMethod, sczResource, NULL, NULL, DOWNLOAD_ENGINE_ACCEPT_TYPES, dwRequestFlags, NULL);
++    hUrl = ::HttpOpenRequestW(hConnect, wzMethod, sczResource, NULL, NULL, DOWNLOAD_ENGINE_ACCEPT_TYPES, dwRequestFlags, 0);
+     DlExitOnNullWithLastError(hUrl, hr, "Failed to open internet request.");
+ 
+     if (wzHeader && *wzHeader)
+diff --git a/src/libs/dutil/WixToolset.DUtil/env2util.cpp b/src/libs/dutil/WixToolset.DUtil/env2util.cpp
+index 21bbd101..582e4a6d 100644
+--- a/src/libs/dutil/WixToolset.DUtil/env2util.cpp
++++ b/src/libs/dutil/WixToolset.DUtil/env2util.cpp
+@@ -37,7 +37,7 @@ DAPI_(HRESULT) EnvExpandEnvironmentStringsForUser(
+         hr = StrMaxLength(*psczExpanded, &cchMax);
+         EnvExitOnFailure(hr, "Failed to get max length of input buffer.");
+ 
+-        cchExpanded = (DWORD)min(DWORD_MAX, cchMax);
++        cchExpanded = (DWORD)min((SIZE_T)DWORD_MAX, cchMax);
+     }
+     else
+     {
+diff --git a/src/libs/dutil/WixToolset.DUtil/envutil.cpp b/src/libs/dutil/WixToolset.DUtil/envutil.cpp
+index aa9da233..5e0d74a4 100644
+--- a/src/libs/dutil/WixToolset.DUtil/envutil.cpp
++++ b/src/libs/dutil/WixToolset.DUtil/envutil.cpp
+@@ -36,7 +36,7 @@ DAPI_(HRESULT) EnvExpandEnvironmentStrings(
+         hr = StrMaxLength(*psczExpanded, &cchMax);
+         EnvExitOnFailure(hr, "Failed to get max length of input buffer.");
+ 
+-        cchExpanded = (DWORD)min(DWORD_MAX, cchMax);
++        cchExpanded = (DWORD)min((SIZE_T)DWORD_MAX, cchMax);
+     }
+     else
+     {
+diff --git a/src/libs/dutil/WixToolset.DUtil/eseutil.cpp b/src/libs/dutil/WixToolset.DUtil/eseutil.cpp
+index b9455d4b..f9871d99 100644
+--- a/src/libs/dutil/WixToolset.DUtil/eseutil.cpp
++++ b/src/libs/dutil/WixToolset.DUtil/eseutil.cpp
+@@ -105,8 +105,8 @@ HRESULT HresultFromJetError(JET_ERR jEr)
+     return hr;
+ }
+ 
+-#define ExitOnJetFailure(e, x, s, ...) { x = HresultFromJetError(e); if (S_OK != x) { ExitTraceSource(DUTIL_SOURCE_ESEUTIL, x, s, __VA_ARGS__); goto LExit; }}
+-#define ExitOnRootJetFailure(e, x, s, ...) { x = HresultFromJetError(e); if (S_OK != x) { Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(DUTIL_SOURCE_ESEUTIL, x, s, __VA_ARGS__); goto LExit; }}
++#define ExitOnJetFailure(e, x, s, ...) { x = HresultFromJetError(e); if (S_OK != x) { ExitTraceSource(DUTIL_SOURCE_ESEUTIL, x, s __VA_OPT__(,) __VA_ARGS__); goto LExit; }}
++#define ExitOnRootJetFailure(e, x, s, ...) { x = HresultFromJetError(e); if (S_OK != x) { Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(DUTIL_SOURCE_ESEUTIL, x, s __VA_OPT__(,) __VA_ARGS__); goto LExit; }}
+ 
+ HRESULT DAPI EseBeginSession(
+     __out JET_INSTANCE *pjiInstance,
+@@ -134,14 +134,14 @@ HRESULT DAPI EseBeginSession(
+     jEr = JetCreateInstanceA(pjiInstance, pszAnsiInstance);
+     ExitOnJetFailure(jEr, hr, "Failed to create instance");
+ 
+-    jEr = JetSetSystemParameter(pjiInstance, NULL, JET_paramSystemPath, NULL, pszAnsiPath);
++    jEr = JetSetSystemParameter(pjiInstance, 0, JET_paramSystemPath, 0, pszAnsiPath);
+     ExitOnJetFailure(jEr, hr, "Failed to set jet system path to: %s", pszAnsiPath);
+ 
+     // This makes sure log files that are created are created next to the database, not next to our EXE (note they last after execution)
+-    jEr = JetSetSystemParameter(pjiInstance, NULL, JET_paramLogFilePath, NULL, pszAnsiPath);
++    jEr = JetSetSystemParameter(pjiInstance, 0, JET_paramLogFilePath, 0, pszAnsiPath);
+     ExitOnJetFailure(jEr, hr, "Failed to set jet log file path to: %s", pszAnsiPath);
+ 
+-    jEr = JetSetSystemParameter(pjiInstance, NULL, JET_paramMaxOpenTables, 10, NULL);
++    jEr = JetSetSystemParameter(pjiInstance, 0, JET_paramMaxOpenTables, 10, 0);
+     ExitOnJetFailure(jEr, hr, "Failed to set jet max open tables parameter");
+ 
+     // TODO: Use callback hooks so that Jet Engine uses our memory allocation methods, etc.? (search docs for "JET_PFNREALLOC" - there are other callbacks too)
+@@ -269,6 +269,7 @@ HRESULT AllocIndexCreateStruct(
+     LPSTR pszIndexName = NULL;
+     LPSTR pszTempString = NULL;
+     BOOL fKeyColumns = FALSE;
++    size_t cchSize = 0;
+     DWORD_PTR i;
+ 
+     for (i=0; i < ptsSchema->dwColumns; ++i)
+@@ -312,7 +313,6 @@ HRESULT AllocIndexCreateStruct(
+     EseExitOnNull(*ppjicIndexCreate, hr, E_OUTOFMEMORY, "Failed to allocate index create structure for database");
+ 
+     // Record the size including both null terminators - the struct requires this
+-    size_t cchSize = 0;
+     hr = ::StringCchLengthA(pszMultiSzKeys, STRSAFE_MAX_LENGTH, &cchSize);
+     EseExitOnRootFailure(hr, "Failed to get size of keys string");
+ 
+@@ -389,7 +389,7 @@ HRESULT EnsureSchema(
+             EseExitOnFailure(hr, "Failed to allocate index create struct");
+ 
+             jtTableCreate.cColumns = pdsSchema->ptsTables[dwTable].dwColumns;
+-            jtTableCreate.tableid = NULL;
++            jtTableCreate.tableid = 0;
+ 
+             // TODO: Investigate why we can't create a table without a key column?
+             // Actually create the table using our JET_TABLECREATE struct
+@@ -1047,11 +1047,12 @@ HRESULT DAPI EseBeginQuery(
+     UNREFERENCED_PARAMETER(jtTable);
+ 
+     HRESULT hr = S_OK;
++    ESE_QUERY *peqHandle = NULL;
+ 
+     *peqhHandle = static_cast<ESE_QUERY*>(MemAlloc(sizeof(ESE_QUERY), TRUE));
+     EseExitOnNull(*peqhHandle, hr, E_OUTOFMEMORY, "Failed to allocate new query");
+ 
+-    ESE_QUERY *peqHandle = static_cast<ESE_QUERY *>(*peqhHandle);
++    peqHandle = static_cast<ESE_QUERY *>(*peqhHandle);
+     peqHandle->qtQueryType = qtQueryType;
+     peqHandle->jsSession = jsSession;
+     peqHandle->jtTable = jtTable;
 diff --git a/src/libs/dutil/WixToolset.DUtil/inc/cabutil.h b/src/libs/dutil/WixToolset.DUtil/inc/cabutil.h
 index 0bedba80..93ed7728 100644
 --- a/src/libs/dutil/WixToolset.DUtil/inc/cabutil.h
@@ -313,18 +437,20 @@ index 0bedba80..93ed7728 100644
  #ifdef __cplusplus
  extern "C" {
 diff --git a/src/libs/dutil/WixToolset.DUtil/inc/dutil.h b/src/libs/dutil/WixToolset.DUtil/inc/dutil.h
-index 7d8c7d81..4885ee6b 100644
+index 7d8c7d81..69a8e45b 100644
 --- a/src/libs/dutil/WixToolset.DUtil/inc/dutil.h
 +++ b/src/libs/dutil/WixToolset.DUtil/inc/dutil.h
-@@ -120,7 +120,7 @@ void DAPI Dutil_RootFailure(__in_z LPCSTR szFile, __in int iLine, __in HRESULT h
+@@ -120,8 +120,8 @@ void DAPI Dutil_RootFailure(__in_z LPCSTR szFile, __in int iLine, __in HRESULT h
  
  #define ExitFunctionWithLastError(x) { x = HRESULT_FROM_WIN32(::GetLastError()); goto LExit; }
  
 -#define ExitTraceSource(d, x, s, ...) { TraceError(x, s, __VA_ARGS__); (void)Dutil_TraceErrorSource(__FILE__, __LINE__, REPORT_ERROR, d, x, s, __VA_ARGS__); }
+-#define ExitTraceDebugSource(d, x, s, ...) { TraceErrorDebug(x, s, __VA_ARGS__); (void)Dutil_TraceErrorSource(__FILE__, __LINE__, REPORT_DEBUG, d, x, s, __VA_ARGS__); }
 +#define ExitTraceSource(d, x, s, ...) { TraceError(x, s __VA_OPT__(,) __VA_ARGS__); (void)Dutil_TraceErrorSource(__FILE__, __LINE__, REPORT_ERROR, d, x, s __VA_OPT__(,) __VA_ARGS__); }
- #define ExitTraceDebugSource(d, x, s, ...) { TraceErrorDebug(x, s, __VA_ARGS__); (void)Dutil_TraceErrorSource(__FILE__, __LINE__, REPORT_DEBUG, d, x, s, __VA_ARGS__); }
++#define ExitTraceDebugSource(d, x, s, ...) { TraceErrorDebug(x, s, __VA_ARGS__); (void)Dutil_TraceErrorSource(__FILE__, __LINE__, REPORT_DEBUG, d, x, s __VA_OPT__(,) __VA_ARGS__); }
  
  #define ExitOnLastErrorSource(d, x, s, ...) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (FAILED(x)) { Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__); goto LExit; } }
+ #define ExitOnLastErrorDebugTraceSource(d, x, s, ...) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (FAILED(x)) { Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceDebugSource(d, x, s, __VA_ARGS__); goto LExit; } }
 @@ -130,9 +130,9 @@ void DAPI Dutil_RootFailure(__in_z LPCSTR szFile, __in int iLine, __in HRESULT h
  #define ExitOnRootFailureSource(d, x, s, ...) if (FAILED(x)) { Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__);  goto LExit; }
  #define ExitWithRootFailureSource(d, x, e, s, ...) { x = FAILED(e) ? e : E_FAIL; Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__); goto LExit; }
@@ -332,9 +458,9 @@ index 7d8c7d81..4885ee6b 100644
 -#define ExitOnNullSource(d, p, x, e, s, ...) if (NULL == p) { x = e; Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__);  goto LExit; }
 -#define ExitOnNullWithLastErrorSource(d, p, x, s, ...) if (NULL == p) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (!FAILED(x)) { x = E_FAIL; } Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__); goto LExit; }
 -#define ExitOnNullDebugTraceSource(d, p, x, e, s, ...) if (NULL == p) { x = e; Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceDebugSource(d, x, s, __VA_ARGS__);  goto LExit; }
-+#define ExitOnNullSource(d, p, x, e, s, ...) if (0 == p) { x = e; Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__);  goto LExit; }
-+#define ExitOnNullWithLastErrorSource(d, p, x, s, ...) if (0 == p) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (!FAILED(x)) { x = E_FAIL; } Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__); goto LExit; }
-+#define ExitOnNullDebugTraceSource(d, p, x, e, s, ...) if (0 == p) { x = e; Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceDebugSource(d, x, s, __VA_ARGS__);  goto LExit; }
++#define ExitOnNullSource(d, p, x, e, s, ...) if (0 == p) { x = e; Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s __VA_OPT__(,) __VA_ARGS__);  goto LExit; }
++#define ExitOnNullWithLastErrorSource(d, p, x, s, ...) if (0 == p) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (!FAILED(x)) { x = E_FAIL; } Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s __VA_OPT__(,) __VA_ARGS__); goto LExit; }
++#define ExitOnNullDebugTraceSource(d, p, x, e, s, ...) if (0 == p) { x = e; Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceDebugSource(d, x, s __VA_OPT__(,) __VA_ARGS__);  goto LExit; }
  #define ExitOnInvalidHandleWithLastErrorSource(d, p, x, s, ...) if (INVALID_HANDLE_VALUE == p) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (!FAILED(x)) { x = E_FAIL; } Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__); goto LExit; }
  #define ExitOnWin32ErrorSource(d, e, x, s, ...) if (ERROR_SUCCESS != e) { x = HRESULT_FROM_WIN32(e); if (!FAILED(x)) { x = E_FAIL; } Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__); goto LExit; }
  #define ExitOnOptionalXmlQueryFailureSource(d, x, b, s, ...) { { if (S_FALSE == x || E_NOTFOUND == x) { b = FALSE; x = S_OK; } else { b = SUCCEEDED(x); } }; ExitOnRootFailureSource(d, x, s, __VA_ARGS__); }
@@ -365,7 +491,7 @@ index 71f40e8a..f00a6617 100644
  #ifdef __cplusplus
  extern "C" {
 diff --git a/src/libs/dutil/WixToolset.DUtil/precomp.h b/src/libs/dutil/WixToolset.DUtil/precomp.h
-index 81dc7992..e7b275f6 100644
+index 81dc7992..f12aa7e2 100644
 --- a/src/libs/dutil/WixToolset.DUtil/precomp.h
 +++ b/src/libs/dutil/WixToolset.DUtil/precomp.h
 @@ -3,16 +3,58 @@
@@ -431,7 +557,7 @@ index 81dc7992..e7b275f6 100644
  #include <windows.h>
  #include <windowsx.h>
  #include <intsafe.h>
-@@ -24,22 +66,21 @@
+@@ -24,22 +66,41 @@
  #include <shlobj.h>
  #include <shlwapi.h>
  #include <gdiplus.h>
@@ -443,9 +569,29 @@ index 81dc7992..e7b275f6 100644
  #include <activeds.h>
  #include <richedit.h>
  #include <stddef.h>
++
  #include <esent.h>
 -#include <ahadmin.h>
 -#include <SRRestorePtAPI.h>
++#define JET_bitColumnFixed 0x1
++#define JET_bitColumnTagged 0x2
++#define JET_bitColumnAutoincrement 0x10
++#define JET_bitColumnNotNULL 0x4
++#define JET_bitIndexUnique 0x1
++#define JET_bitIndexPrimary 0x2
++#define JET_bitNewKey 0x1
++#define JET_bitFullColumnStartLimit 0x100
++#define JET_bitFullColumnEndLimit 0x200
++#define JET_bitSeekEQ 0x1
++#define JET_bitSeekLE 0x4
++#define JET_bitSeekGE 0x8
++#define JET_bitSeekGT 0x10
++#define JET_bitRangeUpperLimit 0x2
++#define JET_bitRangeRemove 0x8
++#define JET_bitRollbackAll 0x1
++#define JET_prepCancel 3
++#define JetCreateTableColumnIndex JetCreateTableColumnIndexA
++
 +#include <srrestoreptapi.h>
  #include <userenv.h>
 -#include <WinIoCtl.h>
@@ -459,7 +605,7 @@ index 81dc7992..e7b275f6 100644
  
  #include "dutilsources.h"
  #include "dutil.h"
-@@ -102,3 +143,10 @@
+@@ -102,3 +163,10 @@
  #include <msxml2.h>   // This file is needed to include xmlutil.h
  #include "xmlutil.h"
  
