@@ -11,11 +11,13 @@ done
 find -type f -name '*.dll' -delete
 cd ..
 
-echo "==== Building dutil ===="
+wixnative=$PWD/wix/src/wix/wixnative
 dutil=$PWD/wix/src/libs/dutil/WixToolset.DUtil
+
+echo "==== Building dutil ===="
 mkdir build_dutil
 cd build_dutil
-x86_64-w64-mingw32-g++ -x c++-header -I $dutil/inc/ $dutil/precomp.h -o $dutil/precomp.h.gch
+x86_64-w64-mingw32-g++ -x c++-header -I $dutil/inc $dutil/precomp.h -o $dutil/precomp.h.gch
 for cpp in $dutil/*.cpp; do
   base=$(basename $cpp)
   echo "compiling $base"
@@ -24,6 +26,22 @@ done
 ar rcs dutil.a *.o
 cd ..
 echo "==== Done building dutil ===="
+
+echo "==== Building wixnative ===="
+mkdir build_wixnative
+cd build_wixnative
+x86_64-w64-mingw32-g++ -x c++-header -I $dutil/inc $wixnative/precomp.cpp -o $wixnative/precomp.cpp.gch
+rm $wixnative/precomp.cpp
+for cpp in $wixnative/*.cpp; do
+  base=$(basename $cpp)
+  echo "compiling $base"
+  x86_64-w64-mingw32-g++ -c -I $dutil/inc/ $cpp -o $base.o
+done
+x86_64-w64-mingw32-g++ *.o ../build_dutil/dutil.a -o wixnative
+cd ..
+echo "==== Done building wixnative ===="
+
+
 
 if [ "$dontConfigureNuget" = 1 ]; then
   sed -i 's|build\\artifacts|build/artifacts|g' wix/nuget.config
@@ -56,6 +74,7 @@ build_artifact wix/src/dtf/WixToolset.Dtf.Resources/WixToolset.Dtf.Resources.csp
 build_artifact wix/src/api/wix/WixToolset.Extensibility/WixToolset.Extensibility.csproj
 build_artifact wix/src/libs/WixToolset.Versioning/WixToolset.Versioning.csproj
 
+echo "==== Building wix.csproj ===="
 dotnet build wix/src/wix/wix/wix.csproj $FLAGS
 
 #dotnet publish wix/src/wix/wix/wix.csproj $FLAGS \

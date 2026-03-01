@@ -455,11 +455,96 @@ index 0bedba80..93ed7728 100644
  
  #ifdef __cplusplus
  extern "C" {
+diff --git a/src/libs/dutil/WixToolset.DUtil/inc/conutil.h b/src/libs/dutil/WixToolset.DUtil/inc/conutil.h
+index 84038d1f..a1659609 100644
+--- a/src/libs/dutil/WixToolset.DUtil/inc/conutil.h
++++ b/src/libs/dutil/WixToolset.DUtil/inc/conutil.h
+@@ -6,18 +6,18 @@
+ extern "C" {
+ #endif
+ 
+-#define ConsoleExitOnFailureSource(d, x, c, f, ...) if (FAILED(x)) { ConsoleWriteError(x, c, f, __VA_ARGS__); ExitTraceSource(d, x, f, __VA_ARGS__); goto LExit; }
+-#define ConsoleExitOnLastErrorSource(d, x, c, f, ...) { x = ::GetLastError(); x = HRESULT_FROM_WIN32(x); if (FAILED(x)) { ConsoleWriteError(x, c, f, __VA_ARGS__); ExitTraceSource(d, x, f, __VA_ARGS__); goto LExit; } }
+-#define ConsoleExitOnNullSource(d, p, x, e, c, f, ...) if (NULL == p) { x = e; ConsoleWriteError(x, c, f, __VA_ARGS__); ExitTraceSource(d, x, f, __VA_ARGS__); goto LExit; }
+-#define ConsoleExitOnNullWithLastErrorSource(d, p, x, c, f, ...) if (NULL == p) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (!FAILED(x)) { x = E_FAIL; } ConsoleWriteError(x, c, f, __VA_ARGS__); ExitTraceSource(d, x, f, __VA_ARGS__); goto LExit; }
+-#define ConsoleExitWithLastErrorSource(d, x, c, f, ...) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (!FAILED(x)) { x = E_FAIL; } ConsoleWriteError(x, c, f, __VA_ARGS__); ExitTraceSource(d, x, f, __VA_ARGS__); goto LExit; }
+-
+-
+-#define ConsoleExitOnFailure(x, c, f, ...) ConsoleExitOnFailureSource(DUTIL_SOURCE_DEFAULT, x, c, f, __VA_ARGS__)
+-#define ConsoleExitOnLastError(x, c, f, ...) ConsoleExitOnLastErrorSource(DUTIL_SOURCE_DEFAULT, x, c, f, __VA_ARGS__)
+-#define ConsoleExitOnNull(p, x, e, c, f, ...) ConsoleExitOnNullSource(DUTIL_SOURCE_DEFAULT, p, x, e, c, f, __VA_ARGS__)
+-#define ConsoleExitOnNullWithLastError(p, x, c, f, ...) ConsoleExitOnNullWithLastErrorSource(DUTIL_SOURCE_DEFAULT, p, x, c, f, __VA_ARGS__)
+-#define ConsoleExitWithLastError(x, c, f, ...) ConsoleExitWithLastErrorSource(DUTIL_SOURCE_DEFAULT, x, c, f, __VA_ARGS__)
++#define ConsoleExitOnFailureSource(d, x, c, f, ...) if (FAILED(x)) { ConsoleWriteError(x, c, f __VA_OPT__(,) __VA_ARGS__); ExitTraceSource(d, x, f __VA_OPT__(,) __VA_ARGS__); goto LExit; }
++#define ConsoleExitOnLastErrorSource(d, x, c, f, ...) { x = ::GetLastError(); x = HRESULT_FROM_WIN32(x); if (FAILED(x)) { ConsoleWriteError(x, c, f, __VA_ARGS__); ExitTraceSource(d, x, f __VA_OPT__(,) __VA_ARGS__); goto LExit; } }
++#define ConsoleExitOnNullSource(d, p, x, e, c, f, ...) if (NULL == p) { x = e; ConsoleWriteError(x, c, f, __VA_ARGS__); ExitTraceSource(d, x, f __VA_OPT__(,) __VA_ARGS__); goto LExit; }
++#define ConsoleExitOnNullWithLastErrorSource(d, p, x, c, f, ...) if (NULL == p) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (!FAILED(x)) { x = E_FAIL; } ConsoleWriteError(x, c, f, __VA_ARGS__); ExitTraceSource(d, x, f __VA_OPT__(,) __VA_ARGS__); goto LExit; }
++#define ConsoleExitWithLastErrorSource(d, x, c, f, ...) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (!FAILED(x)) { x = E_FAIL; } ConsoleWriteError(x, c, f, __VA_ARGS__); ExitTraceSource(d, x, f __VA_OPT__(,) __VA_ARGS__); goto LExit; }
++
++
++#define ConsoleExitOnFailure(x, c, f, ...) ConsoleExitOnFailureSource(DUTIL_SOURCE_DEFAULT, x, c, f __VA_OPT__(,) __VA_ARGS__)
++#define ConsoleExitOnLastError(x, c, f, ...) ConsoleExitOnLastErrorSource(DUTIL_SOURCE_DEFAULT, x, c, f __VA_OPT__(,) __VA_ARGS__)
++#define ConsoleExitOnNull(p, x, e, c, f, ...) ConsoleExitOnNullSource(DUTIL_SOURCE_DEFAULT, p, x, e, c, f __VA_OPT__(,) __VA_ARGS__)
++#define ConsoleExitOnNullWithLastError(p, x, c, f, ...) ConsoleExitOnNullWithLastErrorSource(DUTIL_SOURCE_DEFAULT, p, x, c, f __VA_OPT__(,) __VA_ARGS__)
++#define ConsoleExitWithLastError(x, c, f, ...) ConsoleExitWithLastErrorSource(DUTIL_SOURCE_DEFAULT, x, c, f __VA_OPT__(,) __VA_ARGS__)
+ 
+ // enums
+ typedef enum CONSOLE_COLOR { CONSOLE_COLOR_NORMAL, CONSOLE_COLOR_RED, CONSOLE_COLOR_YELLOW, CONSOLE_COLOR_GREEN } CONSOLE_COLOR;
 diff --git a/src/libs/dutil/WixToolset.DUtil/inc/dutil.h b/src/libs/dutil/WixToolset.DUtil/inc/dutil.h
-index 7d8c7d81..69a8e45b 100644
+index 7d8c7d81..0dbffcf7 100644
 --- a/src/libs/dutil/WixToolset.DUtil/inc/dutil.h
 +++ b/src/libs/dutil/WixToolset.DUtil/inc/dutil.h
-@@ -120,8 +120,8 @@ void DAPI Dutil_RootFailure(__in_z LPCSTR szFile, __in int iLine, __in HRESULT h
+@@ -3,6 +3,49 @@
+ 
+ #include "dutilsources.h"
+ 
++#include <sal.h>
++#define __in
++#define __in_bcount_opt(b)
++#define __in_z
++#define __in_z_opt
++#define __in_ecount_opt(b)
++#define __in_xcount(b)
++#define __out
++#define __out_bcount_part_opt(x,y)
++#define __out_data_source(x)
++#define __out_ecount_opt(b)
++#define __out_range(x,y)
++#define __out_z
++#define __out_z_opt
++#define __inout_opt
++#define __inout_z
++#define __inout_z_opt
++#define __deref_opt_out_z
++#define __deref_opt_out_z_opt
++#define __deref_out_bcount(b)
++#define __deref_out_bcount_full(b)
++#define __deref_out_bcount_opt(b)
++#define __deref_out_bound
++#define __deref_out_ecount_opt(b)
++#define __deref_out_ecount_part(x,y)
++#define __deref_out_ecount_z(x)
++#define __deref_out_z
++#define __deref_out_z_opt
++#define __deref_inout
++#define __deref_inout_bcount(b)
++#define __deref_inout_bcount_full(b)
++#define __deref_inout_ecount(b)
++#define __deref_inout_ecount_opt(x)
++#define __deref_inout_ecount_part(x,y)
++#define __deref_inout_z
++#define __deref_inout_z_opt
++#define __format_string
++#define __nullnullterminated
++#define __reserved
++#define __success(e)
++#define __callback
++#define __assume(e)
++
+ #define DAPI __stdcall
+ #define DAPIV __cdecl // used only for functions taking variable length arguments
+ 
+@@ -120,8 +163,8 @@ void DAPI Dutil_RootFailure(__in_z LPCSTR szFile, __in int iLine, __in HRESULT h
  
  #define ExitFunctionWithLastError(x) { x = HRESULT_FROM_WIN32(::GetLastError()); goto LExit; }
  
@@ -470,7 +555,7 @@ index 7d8c7d81..69a8e45b 100644
  
  #define ExitOnLastErrorSource(d, x, s, ...) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (FAILED(x)) { Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__); goto LExit; } }
  #define ExitOnLastErrorDebugTraceSource(d, x, s, ...) { DWORD Dutil_er = ::GetLastError(); x = HRESULT_FROM_WIN32(Dutil_er); if (FAILED(x)) { Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceDebugSource(d, x, s, __VA_ARGS__); goto LExit; } }
-@@ -130,9 +130,9 @@ void DAPI Dutil_RootFailure(__in_z LPCSTR szFile, __in int iLine, __in HRESULT h
+@@ -130,9 +173,9 @@ void DAPI Dutil_RootFailure(__in_z LPCSTR szFile, __in int iLine, __in HRESULT h
  #define ExitOnRootFailureSource(d, x, s, ...) if (FAILED(x)) { Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__);  goto LExit; }
  #define ExitWithRootFailureSource(d, x, e, s, ...) { x = FAILED(e) ? e : E_FAIL; Dutil_RootFailure(__FILE__, __LINE__, x); ExitTraceSource(d, x, s, __VA_ARGS__); goto LExit; }
  #define ExitOnFailureDebugTraceSource(d, x, s, ...) if (FAILED(x)) { ExitTraceDebugSource(d, x, s, __VA_ARGS__);  goto LExit; }
@@ -720,10 +805,10 @@ index 8d0a5ed0..83b769d3 100644
      {
          if (!::ConnectNamedPipe(hPipe, NULL))
 diff --git a/src/libs/dutil/WixToolset.DUtil/precomp.h b/src/libs/dutil/WixToolset.DUtil/precomp.h
-index 81dc7992..920eb6f1 100644
+index 81dc7992..2c3bbcda 100644
 --- a/src/libs/dutil/WixToolset.DUtil/precomp.h
 +++ b/src/libs/dutil/WixToolset.DUtil/precomp.h
-@@ -3,16 +3,59 @@
+@@ -3,16 +3,17 @@
  
  
  #ifndef _WIN32_WINNT
@@ -741,53 +826,11 @@ index 81dc7992..920eb6f1 100644
  
 -#include <WinSock2.h>
 +#include <sal.h>
-+#define __in
-+#define __in_bcount_opt(b)
-+#define __in_z
-+#define __in_z_opt
-+#define __in_ecount_opt(b)
-+#define __in_xcount(b)
-+#define __out
-+#define __out_bcount_part_opt(x,y)
-+#define __out_data_source(x)
-+#define __out_ecount_opt(b)
-+#define __out_range(x,y)
-+#define __out_z
-+#define __out_z_opt
-+#define __inout_opt
-+#define __inout_z
-+#define __inout_z_opt
-+#define __deref_opt_out_z
-+#define __deref_opt_out_z_opt
-+#define __deref_out_bcount(b)
-+#define __deref_out_bcount_full(b)
-+#define __deref_out_bcount_opt(b)
-+#define __deref_out_bound
-+#define __deref_out_ecount_opt(b)
-+#define __deref_out_ecount_part(x,y)
-+#define __deref_out_ecount_z(x)
-+#define __deref_out_z
-+#define __deref_out_z_opt
-+#define __deref_inout
-+#define __deref_inout_bcount(b)
-+#define __deref_inout_bcount_full(b)
-+#define __deref_inout_ecount(b)
-+#define __deref_inout_ecount_opt(x)
-+#define __deref_inout_ecount_part(x,y)
-+#define __deref_inout_z
-+#define __deref_inout_z_opt
-+#define __format_string
-+#define __nullnullterminated
-+#define __reserved
-+#define __success(e)
-+#define __callback
-+#define __assume(e)
-+
 +#include <winsock2.h>
  #include <windows.h>
  #include <windowsx.h>
  #include <intsafe.h>
-@@ -24,22 +67,41 @@
+@@ -24,22 +25,41 @@
  #include <shlobj.h>
  #include <shlwapi.h>
  #include <gdiplus.h>
@@ -835,7 +878,7 @@ index 81dc7992..920eb6f1 100644
  
  #include "dutilsources.h"
  #include "dutil.h"
-@@ -102,3 +164,14 @@
+@@ -102,3 +122,14 @@
  #include <msxml2.h>   // This file is needed to include xmlutil.h
  #include "xmlutil.h"
  
@@ -1076,3 +1119,44 @@ index 2e1a2200..82c01b47 100644
      if (1 == cInitialized)
      {
          // NOTE: 4.0 behaves differently than 3.0 so there may be problems doing this
+diff --git a/src/wix/wixnative/certhashes.cpp b/src/wix/wixnative/certhashes.cpp
+index cbb548ba..05a1deb1 100644
+--- a/src/wix/wixnative/certhashes.cpp
++++ b/src/wix/wixnative/certhashes.cpp
+@@ -80,7 +80,7 @@ static HRESULT GetPublicKeyIdentifierAndThumbprint(
+     pCertContext = pChainContext->rgpChain[0]->rgpElement[0]->pCertContext;
+ 
+     // Get the certificate's public key identifier and thumbprint.
+-    if (!::CryptHashPublicKeyInfo(NULL, CALG_SHA1, 0, X509_ASN_ENCODING, &pCertContext->pCertInfo->SubjectPublicKeyInfo, rgbPublicKeyIdentifier, &cbPublicKeyIdentifier))
++    if (!::CryptHashPublicKeyInfo(0, CALG_SHA1, 0, X509_ASN_ENCODING, &pCertContext->pCertInfo->SubjectPublicKeyInfo, rgbPublicKeyIdentifier, &cbPublicKeyIdentifier))
+     {
+         ExitWithLastError(hr, "Failed to get certificate public key identifier from file: %ls", wzPath);
+     }
+diff --git a/src/wix/wixnative/wixnative.cpp b/src/wix/wixnative/wixnative.cpp
+index 7a689fc3..07438b23 100644
+--- a/src/wix/wixnative/wixnative.cpp
++++ b/src/wix/wixnative/wixnative.cpp
+@@ -12,19 +12,19 @@ int __cdecl wmain(int argc, LPWSTR argv[])
+     {
+         ConsoleWriteError(hr, CONSOLE_COLOR_RED, "Must specify a command");
+     }
+-    else if (CSTR_EQUAL == ::CompareString(LOCALE_INVARIANT, NORM_IGNORECASE, argv[1], -1, L"smartcab", -1))
++    else if (CSTR_EQUAL == ::CompareStringW(LOCALE_INVARIANT, NORM_IGNORECASE, argv[1], -1, L"smartcab", -1))
+     {
+         hr = SmartCabCommand(argc - 2, argv + 2);
+     }
+-    else if (CSTR_EQUAL == ::CompareString(LOCALE_INVARIANT, NORM_IGNORECASE, argv[1], -1, L"extractcab", -1))
++    else if (CSTR_EQUAL == ::CompareStringW(LOCALE_INVARIANT, NORM_IGNORECASE, argv[1], -1, L"extractcab", -1))
+     {
+         hr = ExtractCabCommand(argc - 2, argv + 2);
+     }
+-    else if (CSTR_EQUAL == ::CompareString(LOCALE_INVARIANT, NORM_IGNORECASE, argv[1], -1, L"enumcab", -1))
++    else if (CSTR_EQUAL == ::CompareStringW(LOCALE_INVARIANT, NORM_IGNORECASE, argv[1], -1, L"enumcab", -1))
+     {
+         hr = EnumCabCommand(argc - 2, argv + 2);
+     }
+-    else if (CSTR_EQUAL == ::CompareString(LOCALE_INVARIANT, NORM_IGNORECASE, argv[1], -1, L"certhashes", -1))
++    else if (CSTR_EQUAL == ::CompareStringW(LOCALE_INVARIANT, NORM_IGNORECASE, argv[1], -1, L"certhashes", -1))
+     {
+         hr = CertificateHashesCommand(argc - 2, argv + 2);
+     }
