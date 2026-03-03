@@ -1119,6 +1119,68 @@ index 2e1a2200..82c01b47 100644
      if (1 == cInitialized)
      {
          // NOTE: 4.0 behaves differently than 3.0 so there may be problems doing this
+diff --git a/src/wix/Directory.Build.targets b/src/wix/Directory.Build.targets
+index 78b83e60..6d119859 100644
+--- a/src/wix/Directory.Build.targets
++++ b/src/wix/Directory.Build.targets
+@@ -16,12 +16,8 @@
+   </ItemGroup>
+ 
+   <ItemGroup Condition=" '$(RequiresNativeWixAssets)'=='true' and '$(TargetFrameworkIdentifier)'!='.NETFramework' and '$(RuntimeIdentifier)'=='' ">
+-    <NativeLibrary Include="$(MSBuildThisFileDirectory)wixnative\ARM64\mergemod.dll" RuntimeIdentifier="win-arm64" />
+     <NativeLibrary Include="$(MSBuildThisFileDirectory)wixnative\x64\mergemod.dll" RuntimeIdentifier="win-x64" />
+-    <NativeLibrary Include="$(MSBuildThisFileDirectory)wixnative\Win32\mergemod.dll" RuntimeIdentifier="win-x86" />
+-    <NativeLibrary Include="$(BaseOutputPath)$(Configuration)\ARM64\wixnative.exe" RuntimeIdentifier="win-arm64" />
+-    <NativeLibrary Include="$(BaseOutputPath)$(Configuration)\x64\wixnative.exe" RuntimeIdentifier="win-x64" />
+-    <NativeLibrary Include="$(BaseOutputPath)$(Configuration)\x86\wixnative.exe" RuntimeIdentifier="win-x86" />
++    <NativeLibrary Include="$(WixNativeExePath)" RuntimeIdentifier="win-x64" />
+ 
+     <!--
+       This PackageReference is required so the RuntimeTargetsCopyLocalItems have a package (any package would
+diff --git a/src/wix/WixToolset.Core.Native/WixToolset.Core.Native.csproj b/src/wix/WixToolset.Core.Native/WixToolset.Core.Native.csproj
+index b5c83fba..f4b59da9 100644
+--- a/src/wix/WixToolset.Core.Native/WixToolset.Core.Native.csproj
++++ b/src/wix/WixToolset.Core.Native/WixToolset.Core.Native.csproj
+@@ -11,15 +11,11 @@
+   </PropertyGroup>
+ 
+   <ItemGroup>
+-    <None Include="cubes\darice.cub" CopyToOutputDirectory="PreserveNewest" />
+-    <None Include="cubes\mergemod.cub" CopyToOutputDirectory="PreserveNewest" />
+     <None Include="targets\WixToolset.Core.Native.targets" CopyToOutputDirectory="PreserveNewest" />
+   </ItemGroup>
+ 
+   <ItemGroup Condition=" '$(NCrunch)'=='' ">
+-    <ProjectReference Include="..\wixnative\wixnative.vcxproj" ReferenceOutputAssembly="false" PrivateAssets="All" Properties="Platform=ARM64" />
+-    <ProjectReference Include="..\wixnative\wixnative.vcxproj" ReferenceOutputAssembly="false" PrivateAssets="All" Properties="Platform=x86" />
+-    <ProjectReference Include="..\wixnative\wixnative.vcxproj" ReferenceOutputAssembly="false" PrivateAssets="All" Properties="Platform=x64" />
++    <!--<ProjectReference Include="..\wixnative\wixnative.vcxproj" ReferenceOutputAssembly="false" PrivateAssets="All" Properties="Platform=x64" />-->
+   </ItemGroup>
+ 
+   <ItemGroup>
+diff --git a/src/wix/WixToolset.Core.Native/WixToolset.Core.Native.nuspec b/src/wix/WixToolset.Core.Native/WixToolset.Core.Native.nuspec
+index b5421c1a..d83ae44d 100644
+--- a/src/wix/WixToolset.Core.Native/WixToolset.Core.Native.nuspec
++++ b/src/wix/WixToolset.Core.Native/WixToolset.Core.Native.nuspec
+@@ -22,17 +22,8 @@
+     <file src="$id$.dll" target="lib\netstandard2.0" />
+     <file src="$id$.xml" target="lib\netstandard2.0" />
+ 
+-    <file src="$projectFolder$\cubes\darice.cub" target="lib\netstandard2.0\cubes" />
+-    <file src="$projectFolder$\cubes\mergemod.cub" target="lib\netstandard2.0\cubes" />
+-
+     <file src="$projectFolder$\targets\$id$.targets" target="buildTransitive" />
+ 
+-    <file src="$projectFolder$\..\wixnative\ARM64\mergemod.dll" target="runtimes\win-arm64\native" />
+-    <file src="$projectFolder$\..\wixnative\Win32\mergemod.dll" target="runtimes\win-x86\native" />
+-    <file src="$projectFolder$\..\wixnative\x64\mergemod.dll" target="runtimes\win-x64\native" />
+-
+-    <file src="..\ARM64\wixnative.exe" target="runtimes\win-arm64\native" />
+-    <file src="..\x86\wixnative.exe" target="runtimes\win-x86\native" />
+-    <file src="..\x64\wixnative.exe" target="runtimes\win-x64\native" />
++    <file src="..\hey_x64\wixnative.exe" target="runtimes\win-x64\native" />
+   </files>
+ </package>
 diff --git a/src/wix/wixnative/certhashes.cpp b/src/wix/wixnative/certhashes.cpp
 index cbb548ba..05a1deb1 100644
 --- a/src/wix/wixnative/certhashes.cpp
